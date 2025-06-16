@@ -8,10 +8,7 @@ import WelcomeHeader from '@/components/candidate/WelcomeHeader';
 import UpcomingInterviews from '@/components/candidate/UpcomingInterviews';
 import InterviewHistory from '@/components/candidate/InterviewHistory';
 import PerformanceAnalytics from '@/components/candidate/PerformanceAnalytics';
-import ProfileCompletion from '@/components/candidate/ProfileCompletion';
-import SkillAssessments from '@/components/candidate/SkillAssessments';
 import CandidateNavbar from '@/components/candidate/CandidateNavbar';
-import AssessmentsList from '@/components/candidate/AssessmentsList';
 import { useNavigate } from 'react-router-dom';
 import { useProfile } from '@/hooks/useProfile';
 
@@ -40,15 +37,12 @@ const CandidateDashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
           {/* Left Column */}
           <div className="lg:col-span-2 space-y-6">
-            <ProfileCompletion />
             <UpcomingInterviews />
           </div>
           
           {/* Right Column */}
           <div className="space-y-6">
             <PerformanceAnalytics />
-            <SkillAssessments />
-            <AssessmentsList />
           </div>
         </div>
       </div>

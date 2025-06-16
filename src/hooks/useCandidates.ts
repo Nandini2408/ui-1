@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -26,6 +25,7 @@ export const useCandidates = () => {
 
   const fetchCandidates = async () => {
     try {
+      // Simplified query that only fetches the basic profile data
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -45,6 +45,11 @@ export const useCandidates = () => {
       setCandidates(data || []);
     } catch (error) {
       console.error('Error in fetchCandidates:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }

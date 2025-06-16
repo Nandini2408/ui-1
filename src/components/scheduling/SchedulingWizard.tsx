@@ -1,15 +1,52 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Search, Clock, User, Calendar, Mail, Phone, Video, MapPin } from 'lucide-react';
+import { Search, Clock, User, Calendar, Mail, Phone, Video, MapPin, Loader2, FileText } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { useInterviews } from '@/hooks/useInterviews';
+import { useAuth } from '@/hooks/useAuth';
+import { format } from 'date-fns';
 
 interface Props {
   onClose: () => void;
+}
+
+interface Candidate {
+  id: string;
+  first_name: string | null;
+  last_name: string | null;
+  email: string;
+  role: string;
+  avatar_url: string | null;
+}
+
+interface Interviewer {
+  id: string;
+  first_name: string | null;
+  last_name: string | null;
+  role: string;
+  available: boolean;
+}
+
+interface Template {
+  id: string;
+  name: string;
+  description: string | null;
+  duration_minutes: number;
+  questions: any | null;
+  created_at: string;
+}
+
+interface Position {
+  id: string;
+  title: string;
+  department?: string | null;
+  company_id: string | null;
 }
 
 const SchedulingWizard = ({ onClose }: Props) => {
@@ -21,42 +58,238 @@ const SchedulingWizard = ({ onClose }: Props) => {
     interviewer: '',
     date: '',
     time: '',
-    template: ''
+    template: '',
+    position: ''
   });
 
+  const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [interviewers, setInterviewers] = useState<Interviewer[]>([]);
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [positions, setPositions] = useState<Position[]>([]);
+  const [candidateSearch, setCandidateSearch] = useState('');
+  const [loading, setLoading] = useState({
+    candidates: true,
+    interviewers: true,
+    templates: true,
+    positions: true
+  });
+
+  const { toast } = useToast();
+  const { createInterview } = useInterviews();
+  const { user } = useAuth();
   const totalSteps = 5;
 
-  const mockCandidates = [
-    { id: '1', name: 'Sarah Johnson', email: 'sarah@email.com', position: 'Frontend Developer' },
-    { id: '2', name: 'Michael Chen', email: 'michael@email.com', position: 'Backend Engineer' },
-    { id: '3', name: 'Emily Davis', email: 'emily@email.com', position: 'Full Stack Developer' }
-  ];
+  useEffect(() => {
+    fetchCandidates();
+    fetchInterviewers();
+    fetchTemplates();
+    fetchPositions();
+  }, []);
 
-  const mockInterviewers = [
-    { id: '1', name: 'John Smith', role: 'Senior Engineer', available: true },
-    { id: '2', name: 'Emily Wilson', role: 'Tech Lead', available: true },
-    { id: '3', name: 'Mike Johnson', role: 'Engineering Manager', available: false }
-  ];
+  const fetchCandidates = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('role', 'candidate');
 
-  const mockTemplates = [
-    { id: '1', name: 'Frontend Technical', duration: '60 min', questions: 12 },
-    { id: '2', name: 'Backend System Design', duration: '90 min', questions: 8 },
-    { id: '3', name: 'Full Stack Assessment', duration: '120 min', questions: 15 }
-  ];
+      if (error) throw error;
+      setCandidates(data || []);
+    } catch (error) {
+      console.error('Error fetching candidates:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load candidates",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(prev => ({ ...prev, candidates: false }));
+    }
+  };
 
-  const nextStep = () => {
+  const fetchInterviewers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('role', 'recruiter');
+
+      if (error) throw error;
+      
+      // Check availability from user_availability table
+      const { data: availabilityData } = await supabase
+        .from('user_availability')
+        .select('user_id, is_active');
+      
+      const availabilityMap = new Map();
+      availabilityData?.forEach(item => {
+        availabilityMap.set(item.user_id, item.is_active);
+      });
+      
+      const interviewersWithAvailability = data?.map(interviewer => ({
+        ...interviewer,
+        available: availabilityMap.get(interviewer.id) || false
+      })) || [];
+      
+      setInterviewers(interviewersWithAvailability);
+    } catch (error) {
+      console.error('Error fetching interviewers:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load interviewers",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(prev => ({ ...prev, interviewers: false }));
+    }
+  };
+
+  const fetchTemplates = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('interview_templates')
+        .select('*');
+
+      if (error) throw error;
+      setTemplates(data || []);
+    } catch (error) {
+      console.error('Error fetching templates:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load interview templates",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(prev => ({ ...prev, templates: false }));
+    }
+  };
+
+  const fetchPositions = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('job_positions')
+        .select('*');
+
+      if (error) throw error;
+      setPositions(data || []);
+    } catch (error) {
+      console.error('Error fetching positions:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load job positions",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(prev => ({ ...prev, positions: false }));
+    }
+  };
+
+  const filteredCandidates = candidates.filter(candidate => {
+    const fullName = `${candidate.first_name || ''} ${candidate.last_name || ''}`.trim();
+    return fullName.toLowerCase().includes(candidateSearch.toLowerCase()) ||
+           candidate.email.toLowerCase().includes(candidateSearch.toLowerCase());
+  });
+
+  const handleNext = () => {
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
     }
   };
 
-  const prevStep = () => {
+  const handlePrevious = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     }
   };
 
-  const renderStepContent = () => {
+  const handleSchedule = async () => {
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to schedule interviews",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    try {
+      // Parse date and time
+      if (!formData.date || !formData.time) {
+        toast({
+          title: "Error",
+          description: "Please select a date and time",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      const [hours, minutes] = formData.time.split(':').map(Number);
+      const scheduledAt = new Date(formData.date);
+      scheduledAt.setHours(hours, minutes, 0, 0);
+      
+      // Get selected candidate
+      const selectedCandidate = candidates.find(c => c.id === formData.candidate);
+      if (!selectedCandidate) {
+        toast({
+          title: "Error",
+          description: "Please select a valid candidate",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      // Create interview
+      const interviewData = {
+        candidate_id: formData.candidate,
+        recruiter_id: user.id,
+        job_position_id: formData.position || null,
+        title: `Interview with ${selectedCandidate.first_name} ${selectedCandidate.last_name}`,
+        description: `${formData.interviewType} interview for ${selectedCandidate.first_name} ${selectedCandidate.last_name}`,
+        scheduled_at: scheduledAt.toISOString(),
+        duration_minutes: parseInt(formData.duration) || 60,
+        status: 'scheduled' as const,
+        template_id: formData.template || null
+      };
+      
+      const { data, error } = await createInterview(interviewData);
+      
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to schedule interview",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      toast({
+        title: "Success",
+        description: "Interview scheduled successfully",
+      });
+      
+      onClose();
+    } catch (error) {
+      console.error('Error scheduling interview:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const isStepValid = () => {
+    switch (currentStep) {
+      case 1: return !!formData.candidate;
+      case 2: return !!formData.interviewType && !!formData.duration;
+      case 3: return !!formData.interviewer;
+      case 4: return !!formData.date && !!formData.time;
+      case 5: return !!formData.template;
+      default: return false;
+    }
+  };
+
+  const renderStep = () => {
     switch (currentStep) {
       case 1:
         return (
@@ -67,32 +300,46 @@ const SchedulingWizard = ({ onClose }: Props) => {
               <Input
                 placeholder="Search candidates..."
                 className="pl-10 bg-dark-primary border-border-dark text-text-primary"
+                value={candidateSearch}
+                onChange={(e) => setCandidateSearch(e.target.value)}
               />
             </div>
-            <div className="space-y-2 max-h-60 overflow-y-auto">
-              {mockCandidates.map((candidate) => (
-                <Card 
-                  key={candidate.id}
-                  className={`bg-dark-primary border-border-dark cursor-pointer hover:border-tech-green/50 transition-colors ${
-                    formData.candidate === candidate.id ? 'border-tech-green' : ''
-                  }`}
-                  onClick={() => setFormData({...formData, candidate: candidate.id})}
-                >
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="font-medium text-text-primary">{candidate.name}</h4>
-                        <p className="text-sm text-text-secondary">{candidate.email}</p>
-                        <Badge className="mt-1 bg-blue-500/20 text-blue-400 border-blue-500/30">
-                          {candidate.position}
-                        </Badge>
-                      </div>
-                      <User className="text-tech-green" size={20} />
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            {loading.candidates ? (
+              <div className="flex justify-center py-4">
+                <Loader2 className="h-6 w-6 text-tech-green animate-spin" />
+              </div>
+            ) : (
+              <div className="space-y-2 max-h-60 overflow-y-auto">
+                {filteredCandidates.length === 0 ? (
+                  <div className="text-center py-4 text-text-secondary">No candidates found</div>
+                ) : (
+                  filteredCandidates.map((candidate) => (
+                    <Card 
+                      key={candidate.id}
+                      className={`bg-dark-primary border-border-dark cursor-pointer hover:border-tech-green/50 transition-colors ${
+                        formData.candidate === candidate.id ? 'border-tech-green' : ''
+                      }`}
+                      onClick={() => setFormData({...formData, candidate: candidate.id})}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h4 className="font-medium text-text-primary">
+                              {candidate.first_name} {candidate.last_name}
+                            </h4>
+                            <p className="text-sm text-text-secondary">{candidate.email}</p>
+                            <Badge className="mt-1 bg-blue-500/20 text-blue-400 border-blue-500/30">
+                              Candidate
+                            </Badge>
+                          </div>
+                          <User className="text-tech-green" size={20} />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
+              </div>
+            )}
           </div>
         );
 
@@ -129,7 +376,7 @@ const SchedulingWizard = ({ onClose }: Props) => {
               <div>
                 <Label className="text-text-primary">Duration</Label>
                 <div className="grid grid-cols-3 gap-2 mt-2">
-                  {['30 min', '60 min', '90 min'].map((duration) => (
+                  {['30', '60', '90'].map((duration) => (
                     <Button
                       key={duration}
                       variant={formData.duration === duration ? 'default' : 'outline'}
@@ -140,11 +387,35 @@ const SchedulingWizard = ({ onClose }: Props) => {
                       }`}
                       onClick={() => setFormData({...formData, duration})}
                     >
-                      {duration}
+                      {duration} min
                     </Button>
                   ))}
                 </div>
               </div>
+            </div>
+            
+            <div>
+              <Label className="text-text-primary">Position</Label>
+              {loading.positions ? (
+                <div className="flex justify-center py-4">
+                  <Loader2 className="h-6 w-6 text-tech-green animate-spin" />
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  {positions.slice(0, 6).map((position) => (
+                    <Button
+                      key={position.id}
+                      variant="outline"
+                      className={`justify-start border-border-dark text-text-secondary hover:text-text-primary ${
+                        formData.position === position.id ? 'border-tech-green text-tech-green' : ''
+                      }`}
+                      onClick={() => setFormData({...formData, position: position.id})}
+                    >
+                      {position.title}
+                    </Button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         );
@@ -153,35 +424,43 @@ const SchedulingWizard = ({ onClose }: Props) => {
         return (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-text-primary">Select Interviewer</h3>
-            <div className="space-y-2 max-h-60 overflow-y-auto">
-              {mockInterviewers.map((interviewer) => (
-                <Card 
-                  key={interviewer.id}
-                  className={`bg-dark-primary border-border-dark cursor-pointer hover:border-tech-green/50 transition-colors ${
-                    formData.interviewer === interviewer.id ? 'border-tech-green' : ''
-                  } ${!interviewer.available ? 'opacity-50' : ''}`}
-                  onClick={() => interviewer.available && setFormData({...formData, interviewer: interviewer.id})}
-                >
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="font-medium text-text-primary">{interviewer.name}</h4>
-                        <p className="text-sm text-text-secondary">{interviewer.role}</p>
+            {loading.interviewers ? (
+              <div className="flex justify-center py-4">
+                <Loader2 className="h-6 w-6 text-tech-green animate-spin" />
+              </div>
+            ) : (
+              <div className="space-y-2 max-h-60 overflow-y-auto">
+                {interviewers.map((interviewer) => (
+                  <Card 
+                    key={interviewer.id}
+                    className={`bg-dark-primary border-border-dark cursor-pointer hover:border-tech-green/50 transition-colors ${
+                      formData.interviewer === interviewer.id ? 'border-tech-green' : ''
+                    } ${!interviewer.available ? 'opacity-50' : ''}`}
+                    onClick={() => interviewer.available && setFormData({...formData, interviewer: interviewer.id})}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="font-medium text-text-primary">
+                            {interviewer.first_name} {interviewer.last_name}
+                          </h4>
+                          <p className="text-sm text-text-secondary">{interviewer.role}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge className={interviewer.available 
+                            ? 'bg-tech-green/20 text-tech-green border-tech-green/30' 
+                            : 'bg-red-500/20 text-red-400 border-red-500/30'
+                          }>
+                            {interviewer.available ? 'Available' : 'Busy'}
+                          </Badge>
+                          <User className="text-tech-green" size={20} />
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Badge className={interviewer.available 
-                          ? 'bg-tech-green/20 text-tech-green border-tech-green/30' 
-                          : 'bg-red-500/20 text-red-400 border-red-500/30'
-                        }>
-                          {interviewer.available ? 'Available' : 'Busy'}
-                        </Badge>
-                        <User className="text-tech-green" size={20} />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         );
 
@@ -209,26 +488,6 @@ const SchedulingWizard = ({ onClose }: Props) => {
                 />
               </div>
             </div>
-            
-            <div>
-              <Label className="text-text-primary">Available Time Slots</Label>
-              <div className="grid grid-cols-4 gap-2 mt-2">
-                {['09:00', '10:30', '14:00', '15:30', '16:00', '17:00'].map((time) => (
-                  <Button
-                    key={time}
-                    variant={formData.time === time ? 'default' : 'outline'}
-                    className={`${
-                      formData.time === time 
-                        ? 'bg-tech-green text-dark-primary' 
-                        : 'border-border-dark text-text-secondary hover:text-text-primary'
-                    }`}
-                    onClick={() => setFormData({...formData, time})}
-                  >
-                    {time}
-                  </Button>
-                ))}
-              </div>
-            </div>
           </div>
         );
 
@@ -236,32 +495,43 @@ const SchedulingWizard = ({ onClose }: Props) => {
         return (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-text-primary">Select Template</h3>
-            <div className="space-y-2">
-              {mockTemplates.map((template) => (
-                <Card 
-                  key={template.id}
-                  className={`bg-dark-primary border-border-dark cursor-pointer hover:border-tech-green/50 transition-colors ${
-                    formData.template === template.id ? 'border-tech-green' : ''
-                  }`}
-                  onClick={() => setFormData({...formData, template: template.id})}
-                >
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="font-medium text-text-primary">{template.name}</h4>
-                        <div className="flex items-center gap-4 mt-1 text-sm text-text-secondary">
-                          <span className="flex items-center gap-1">
-                            <Clock size={12} />
-                            {template.duration}
-                          </span>
-                          <span>{template.questions} questions</span>
+            {loading.templates ? (
+              <div className="flex justify-center py-4">
+                <Loader2 className="h-6 w-6 text-tech-green animate-spin" />
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {templates.map((template) => (
+                  <Card 
+                    key={template.id}
+                    className={`bg-dark-primary border-border-dark cursor-pointer hover:border-tech-green/50 transition-colors ${
+                      formData.template === template.id ? 'border-tech-green' : ''
+                    }`}
+                    onClick={() => setFormData({...formData, template: template.id})}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="font-medium text-text-primary">{template.name}</h4>
+                          <p className="text-sm text-text-secondary">{template.description || 'No description'}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
+                              {template.duration_minutes} min
+                            </Badge>
+                            <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">
+                              {template.questions ? 
+                                (Array.isArray(template.questions) ? template.questions.length : 'N/A') : 
+                                'N/A'} questions
+                            </Badge>
+                          </div>
                         </div>
+                        <FileText className="text-tech-green" size={20} />
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         );
 
@@ -271,76 +541,84 @@ const SchedulingWizard = ({ onClose }: Props) => {
   };
 
   return (
-    <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl bg-dark-secondary border-border-dark">
-        <DialogHeader>
-          <DialogTitle className="text-text-primary flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-tech-green" />
-            Schedule New Interview
-          </DialogTitle>
-        </DialogHeader>
-        
-        {/* Progress Indicator */}
-        <div className="flex items-center justify-between mb-6">
-          {Array.from({ length: totalSteps }, (_, i) => (
-            <div key={i} className="flex items-center">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                i + 1 <= currentStep 
-                  ? 'bg-tech-green text-dark-primary' 
-                  : 'bg-dark-primary text-text-secondary border border-border-dark'
-              }`}>
-                {i + 1}
-              </div>
-              {i < totalSteps - 1 && (
-                <div className={`w-12 h-0.5 mx-2 ${
-                  i + 1 < currentStep ? 'bg-tech-green' : 'bg-border-dark'
-                }`} />
-              )}
-            </div>
-          ))}
-        </div>
-        
-        {/* Step Content */}
-        <div className="min-h-96">
-          {renderStepContent()}
-        </div>
-        
-        {/* Navigation */}
-        <div className="flex items-center justify-between pt-6 border-t border-border-dark">
-          <Button
-            variant="outline"
-            onClick={prevStep}
-            disabled={currentStep === 1}
-            className="border-border-dark text-text-secondary hover:text-text-primary"
-          >
-            Previous
-          </Button>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-dark-secondary rounded-lg border border-border-dark w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-semibold text-text-primary">
+              Schedule Interview - Step {currentStep} of {totalSteps}
+            </h2>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={onClose}
+              className="text-text-secondary hover:text-text-primary"
+            >
+              ×
+            </Button>
+          </div>
           
-          <div className="flex gap-2">
+          <div className="mb-8">
+            <div className="flex items-center justify-between">
+              {Array.from({ length: totalSteps }).map((_, index) => (
+                <div 
+                  key={index}
+                  className={`flex items-center justify-center h-8 w-8 rounded-full ${
+                    index + 1 === currentStep
+                      ? 'bg-tech-green text-dark-primary'
+                      : index + 1 < currentStep
+                        ? 'bg-tech-green/20 text-tech-green border border-tech-green'
+                        : 'bg-dark-primary text-text-secondary border border-border-dark'
+                  }`}
+                >
+                  {index + 1}
+                </div>
+              ))}
+            </div>
+            <div className="relative mt-2">
+              <div className="absolute top-0 left-0 right-0 h-1 bg-dark-primary rounded-full"></div>
+              <div 
+                className="absolute top-0 left-0 h-1 bg-tech-green rounded-full" 
+                style={{ width: `${((currentStep - 1) / (totalSteps - 1)) * 100}%` }}
+              ></div>
+            </div>
+          </div>
+          
+          <div className="mb-8">
+            {renderStep()}
+          </div>
+          
+          <div className="flex justify-between">
             <Button
               variant="outline"
-              onClick={onClose}
+              onClick={handlePrevious}
+              disabled={currentStep === 1}
               className="border-border-dark text-text-secondary hover:text-text-primary"
             >
-              Cancel
+              Previous
             </Button>
-            {currentStep === totalSteps ? (
-              <Button className="bg-tech-green hover:bg-tech-green/90 text-dark-primary">
-                <Mail className="mr-2" size={16} />
-                Schedule & Send Invite
-              </Button>
-            ) : (
-              <Button 
-                onClick={nextStep}
+            
+            {currentStep < totalSteps ? (
+              <Button
+                onClick={handleNext}
+                disabled={!isStepValid()}
                 className="bg-tech-green hover:bg-tech-green/90 text-dark-primary"
               >
                 Next
               </Button>
+            ) : (
+              <Button
+                onClick={handleSchedule}
+                disabled={!isStepValid()}
+                className="bg-tech-green hover:bg-tech-green/90 text-dark-primary"
+              >
+                Schedule Interview
+              </Button>
             )}
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 };
 

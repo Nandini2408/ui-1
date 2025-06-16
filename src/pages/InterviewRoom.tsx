@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
@@ -7,15 +7,20 @@ import { CodeEditorPanel } from '@/components/interview/CodeEditorPanel';
 import { ChatNotesPanel } from '@/components/interview/ChatNotesPanel';
 import { AIAnalysisPanel } from '@/components/interview/AIAnalysisPanel';
 import { Settings, LogOut, Users, Circle, Timer, ArrowLeft } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import BackButton from '@/components/ui/back-button';
+import { useInterviews } from '@/hooks/useInterviews';
 
 const InterviewRoom = () => {
-  const [elapsedTime, setElapsedTime] = React.useState(1847); // 30:47 in seconds
+  const [elapsedTime, setElapsedTime] = React.useState(0);
   const [isRecording, setIsRecording] = React.useState(true);
   const [participantCount, setParticipantCount] = React.useState(2);
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const interviewId = searchParams.get('id');
+  const { interviews, updateInterview } = useInterviews();
+  const [currentInterview, setCurrentInterview] = useState<any>(null);
   
   // State for code sharing between editor and analysis panel
   const [currentCode, setCurrentCode] = useState('');
@@ -23,6 +28,24 @@ const InterviewRoom = () => {
   
   // Reference to the AI Analysis panel
   const aiAnalysisPanelRef = useRef<any>(null);
+  
+  // Load the current interview data
+  useEffect(() => {
+    if (interviewId && interviews.length > 0) {
+      const interview = interviews.find(i => i.id === interviewId);
+      if (interview) {
+        setCurrentInterview(interview);
+        
+        // If the interview is scheduled, update it to in_progress
+        if (interview.status === 'scheduled') {
+          updateInterview(interviewId, { status: 'in_progress' });
+        }
+      } else {
+        // Interview not found, redirect back to interviews page
+        navigate('/interviews');
+      }
+    }
+  }, [interviewId, interviews]);
 
   // Format time to MM:SS
   const formatTime = (seconds: number) => {
@@ -32,15 +55,34 @@ const InterviewRoom = () => {
   };
 
   React.useEffect(() => {
+    // Calculate initial elapsed time if interview is already in progress
+    if (currentInterview?.status === 'in_progress' && currentInterview.scheduled_at) {
+      const startTime = new Date(currentInterview.scheduled_at);
+      const now = new Date();
+      const elapsedSeconds = Math.floor((now.getTime() - startTime.getTime()) / 1000);
+      
+      // Only update if it's a positive number
+      if (elapsedSeconds > 0) {
+        setElapsedTime(elapsedSeconds);
+      }
+    }
+    
+    // Start the timer
     const timer = setInterval(() => {
       setElapsedTime(prev => prev + 1);
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [currentInterview]);
 
-  const handleEndInterview = () => {
-    // In a real app, we would save the interview data before navigating away
+  const handleEndInterview = async () => {
+    // Mark the interview as completed when ending
+    if (interviewId) {
+      await updateInterview(interviewId, { 
+        status: 'completed',
+        updated_at: new Date().toISOString()
+      });
+    }
     navigate('/interviews');
   };
   
@@ -68,8 +110,16 @@ const InterviewRoom = () => {
             />
             <div className="h-6 w-px bg-border-dark mx-2"></div>
             <div>
-              <h1 className="text-white font-semibold text-lg">Senior Frontend Developer Interview</h1>
-              <p className="text-text-secondary text-sm">Sarah Chen</p>
+              <h1 className="text-white font-semibold text-lg">
+                {currentInterview?.title || 'Interview Session'}
+              </h1>
+              <p className="text-text-secondary text-sm">
+                {currentInterview?.candidate ? 
+                  `${currentInterview.candidate.first_name} ${currentInterview.candidate.last_name}` : 
+                  'Candidate'
+                }
+                {currentInterview?.job_position?.title && ` - ${currentInterview.job_position.title}`}
+              </p>
             </div>
           </div>
           
@@ -82,8 +132,20 @@ const InterviewRoom = () => {
             
             {/* Status Indicator */}
             <div className="flex items-center space-x-2">
-              <Circle className="w-3 h-3 text-tech-green fill-current" />
-              <span className="text-tech-green text-sm font-medium">Active</span>
+              <Circle className={`w-3 h-3 fill-current ${
+                currentInterview?.status === 'completed' ? 'text-gray-400' : 
+                currentInterview?.status === 'in_progress' ? 'text-tech-green' : 
+                'text-yellow-400'
+              }`} />
+              <span className={`text-sm font-medium ${
+                currentInterview?.status === 'completed' ? 'text-gray-400' : 
+                currentInterview?.status === 'in_progress' ? 'text-tech-green' : 
+                'text-yellow-400'
+              }`}>
+                {currentInterview?.status === 'completed' ? 'Completed' : 
+                 currentInterview?.status === 'in_progress' ? 'Active' : 
+                 'Scheduled'}
+              </span>
             </div>
             
             {/* Participants */}
@@ -127,9 +189,10 @@ const InterviewRoom = () => {
             size="sm" 
             className="bg-red-600 hover:bg-red-700"
             onClick={handleEndInterview}
+            disabled={currentInterview?.status === 'completed'}
           >
             <LogOut className="w-4 h-4 mr-2" />
-            End Interview
+            {currentInterview?.status === 'completed' ? 'Interview Completed' : 'End Interview'}
           </Button>
         </div>
       </header>

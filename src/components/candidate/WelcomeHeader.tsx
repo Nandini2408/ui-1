@@ -1,14 +1,11 @@
-
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { User, Award, TrendingUp } from 'lucide-react';
+import { User, TrendingUp } from 'lucide-react';
 import { useProfile } from '@/hooks/useProfile';
 
 const WelcomeHeader = () => {
   const { profile } = useProfile();
-  const profileCompletion = 75;
   const achievements = [
     { name: 'Problem Solver', color: 'bg-tech-green' },
     { name: 'Code Quality', color: 'bg-blue-500' },
@@ -39,17 +36,6 @@ const WelcomeHeader = () => {
                   ))}
                 </div>
               </div>
-            </div>
-          </div>
-          
-          <div className="text-right">
-            <div className="flex items-center gap-2 mb-2">
-              <Award className="h-4 w-4 text-tech-green" />
-              <span className="text-sm text-text-secondary">Profile Strength</span>
-            </div>
-            <div className="w-32">
-              <Progress value={profileCompletion} className="h-2" />
-              <p className="text-xs text-tech-green mt-1">{profileCompletion}% Complete</p>
             </div>
           </div>
         </div>

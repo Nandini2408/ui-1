@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Calendar, Clock, Users, Settings } from 'lucide-react';
+import { Plus, Calendar, Clock, Users, Settings, Loader2 } from 'lucide-react';
 import SchedulingCalendar from '@/components/scheduling/SchedulingCalendar';
 import SchedulingWizard from '@/components/scheduling/SchedulingWizard';
 import AvailabilityManager from '@/components/scheduling/AvailabilityManager';
@@ -10,11 +10,66 @@ import InterviewTemplates from '@/components/scheduling/InterviewTemplates';
 import CalendarIntegration from '@/components/scheduling/CalendarIntegration';
 import BackButton from '@/components/ui/back-button';
 import { useProfile } from '@/hooks/useProfile';
+import { supabase } from '@/integrations/supabase/client';
+import { useInterviews } from '@/hooks/useInterviews';
+
+interface ScheduleStats {
+  weeklyInterviews: number;
+  availableHours: number;
+  interviewerCount: number;
+  templateCount: number;
+  upcoming: number;
+  today: number;
+  pending: number;
+}
 
 const Schedule = () => {
-  const [activeView, setActiveView] = useState('calendar');
-  const [isWizardOpen, setIsWizardOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('calendar');
+  const [showWizard, setShowWizard] = useState(false);
   const { profile } = useProfile();
+  const { interviews, loading } = useInterviews();
+  const [stats, setStats] = useState<ScheduleStats>({
+    weeklyInterviews: 0,
+    availableHours: 0,
+    interviewerCount: 0,
+    templateCount: 0,
+    upcoming: 0,
+    today: 0,
+    pending: 0
+  });
+
+  useEffect(() => {
+    if (interviews) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      
+      const upcomingCount = interviews.filter(interview => {
+        if (!interview.scheduled_at) return false;
+        const interviewDate = new Date(interview.scheduled_at);
+        return interviewDate >= today;
+      }).length;
+      
+      const todayCount = interviews.filter(interview => {
+        if (!interview.scheduled_at) return false;
+        const interviewDate = new Date(interview.scheduled_at);
+        return interviewDate >= today && interviewDate < tomorrow;
+      }).length;
+      
+      const pendingCount = interviews.filter(interview => 
+        interview.status === 'scheduled'
+      ).length;
+      
+      setStats(prevStats => ({
+        ...prevStats,
+        upcoming: upcomingCount,
+        today: todayCount,
+        pending: pendingCount
+      }));
+    }
+  }, [interviews]);
 
   // Determine the back destination based on user role
   const getBackDestination = () => {
@@ -46,7 +101,7 @@ const Schedule = () => {
           </div>
           
           <Button 
-            onClick={() => setIsWizardOpen(true)}
+            onClick={() => setShowWizard(true)}
             className="bg-tech-green hover:bg-tech-green/90 text-dark-primary font-semibold"
           >
             <Plus size={16} className="mr-2" />
@@ -55,60 +110,54 @@ const Schedule = () => {
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card className="bg-dark-primary border-border-dark">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <Calendar className="h-8 w-8 text-tech-green" />
-                <div>
-                  <p className="text-lg font-semibold text-text-primary">24</p>
-                  <p className="text-sm text-text-secondary">This Week</p>
+        {loading ? (
+          <div className="flex justify-center py-8">
+            <Loader2 className="h-8 w-8 text-tech-green animate-spin" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Card className="bg-dark-primary border-border-dark">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <Calendar className="h-8 w-8 text-tech-green" />
+                  <div>
+                    <p className="text-lg font-semibold text-text-primary">{stats.upcoming}</p>
+                    <p className="text-sm text-text-secondary">Upcoming Interviews</p>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-dark-primary border-border-dark">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <Clock className="h-8 w-8 text-blue-400" />
-                <div>
-                  <p className="text-lg font-semibold text-text-primary">36h</p>
-                  <p className="text-sm text-text-secondary">Available Time</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-dark-primary border-border-dark">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <Clock className="h-8 w-8 text-blue-400" />
+                  <div>
+                    <p className="text-lg font-semibold text-text-primary">{stats.today}</p>
+                    <p className="text-sm text-text-secondary">Today's Interviews</p>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-dark-primary border-border-dark">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <Users className="h-8 w-8 text-purple-400" />
-                <div>
-                  <p className="text-lg font-semibold text-text-primary">12</p>
-                  <p className="text-sm text-text-secondary">Interviewers</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-dark-primary border-border-dark">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <Users className="h-8 w-8 text-purple-400" />
+                  <div>
+                    <p className="text-lg font-semibold text-text-primary">{stats.pending}</p>
+                    <p className="text-sm text-text-secondary">Pending Confirmation</p>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-dark-primary border-border-dark">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <Settings className="h-8 w-8 text-orange-400" />
-                <div>
-                  <p className="text-lg font-semibold text-text-primary">8</p>
-                  <p className="text-sm text-text-secondary">Templates</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
 
       {/* Main Content */}
       <div className="p-6">
-        <Tabs value={activeView} onValueChange={setActiveView} className="space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="bg-dark-secondary border-border-dark">
             <TabsTrigger 
               value="calendar" 
@@ -155,8 +204,8 @@ const Schedule = () => {
       </div>
 
       {/* Scheduling Wizard Modal */}
-      {isWizardOpen && (
-        <SchedulingWizard onClose={() => setIsWizardOpen(false)} />
+      {showWizard && (
+        <SchedulingWizard onClose={() => setShowWizard(false)} />
       )}
     </div>
   );

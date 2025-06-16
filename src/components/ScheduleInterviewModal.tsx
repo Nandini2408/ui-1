@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -17,7 +16,8 @@ import {
   Clock, 
   FileText, 
   Check,
-  Search
+  Search,
+  Loader2
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -25,6 +25,7 @@ import { useInterviews } from '@/hooks/useInterviews';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useCandidates } from '@/hooks/useCandidates';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ScheduleInterviewModalProps {
   onClose: () => void;
@@ -46,9 +47,17 @@ interface Template {
   id: string;
   name: string;
   description: string;
-  duration: string;
+  duration: number;
   difficulty: 'Easy' | 'Medium' | 'Hard';
   questions: number;
+  created_at: string;
+}
+
+interface Position {
+  id: string;
+  title: string;
+  department: string;
+  company_id: string;
 }
 
 const ScheduleInterviewModal = ({ onClose }: ScheduleInterviewModalProps) => {
@@ -65,6 +74,10 @@ const ScheduleInterviewModal = ({ onClose }: ScheduleInterviewModalProps) => {
   });
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [positions, setPositions] = useState<Position[]>([]);
+  const [loadingTemplates, setLoadingTemplates] = useState(false);
+  const [loadingPositions, setLoadingPositions] = useState(false);
   
   const { createInterview } = useInterviews();
   const { user } = useAuth();
@@ -73,40 +86,62 @@ const ScheduleInterviewModal = ({ onClose }: ScheduleInterviewModalProps) => {
 
   const totalSteps = 5;
 
-  const templates: Template[] = [
-    {
-      id: '1',
-      name: 'Frontend React Assessment',
-      description: 'Comprehensive React.js interview with hooks, state management, and component architecture',
-      duration: '60 min',
-      difficulty: 'Medium',
-      questions: 8
-    },
-    {
-      id: '2',
-      name: 'Backend Node.js Challenge',
-      description: 'Server-side development interview covering APIs, databases, and system design',
-      duration: '90 min',
-      difficulty: 'Hard',
-      questions: 10
-    },
-    {
-      id: '3',
-      name: 'Full Stack Assessment',
-      description: 'Complete full-stack interview with frontend, backend, and database questions',
-      duration: '120 min',
-      difficulty: 'Hard',
-      questions: 12
-    },
-    {
-      id: '4',
-      name: 'Junior Developer Basics',
-      description: 'Entry-level interview focusing on programming fundamentals and problem-solving',
-      duration: '45 min',
-      difficulty: 'Easy',
-      questions: 6
+  useEffect(() => {
+    fetchTemplates();
+    fetchPositions();
+  }, []);
+
+  const fetchTemplates = async () => {
+    setLoadingTemplates(true);
+    try {
+      const { data, error } = await supabase
+        .from('interview_templates')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        console.error('Error fetching templates:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load interview templates",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      setTemplates(data || []);
+    } catch (error) {
+      console.error('Error in fetchTemplates:', error);
+    } finally {
+      setLoadingTemplates(false);
     }
-  ];
+  };
+
+  const fetchPositions = async () => {
+    setLoadingPositions(true);
+    try {
+      const { data, error } = await supabase
+        .from('job_positions')
+        .select('*')
+        .order('title', { ascending: true });
+      
+      if (error) {
+        console.error('Error fetching positions:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load job positions",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      setPositions(data || []);
+    } catch (error) {
+      console.error('Error in fetchPositions:', error);
+    } finally {
+      setLoadingPositions(false);
+    }
+  };
 
   const filteredCandidates = candidates.filter(candidate => {
     const fullName = `${candidate.first_name || ''} ${candidate.last_name || ''}`.trim();
@@ -156,7 +191,7 @@ const ScheduleInterviewModal = ({ onClose }: ScheduleInterviewModalProps) => {
       const interviewData = {
         candidate_id: selectedCandidate.id,
         recruiter_id: user.id,
-        job_position_id: null, // You might want to add job position selection
+        job_position_id: interviewDetails.position || null,
         title: `Interview with ${selectedCandidate.first_name} ${selectedCandidate.last_name}`,
         description: interviewDetails.description,
         scheduled_at: scheduledDateTime.toISOString(),
@@ -165,7 +200,8 @@ const ScheduleInterviewModal = ({ onClose }: ScheduleInterviewModalProps) => {
         meeting_url: null,
         notes: interviewDetails.description,
         overall_score: null,
-        feedback: null
+        feedback: null,
+        template_id: selectedTemplate?.id || null
       };
 
       const result = await createInterview(interviewData);
@@ -248,20 +284,18 @@ const ScheduleInterviewModal = ({ onClose }: ScheduleInterviewModalProps) => {
                     >
                       <CardContent className="p-4">
                         <div className="flex items-center space-x-3">
-                          <div className="w-10 h-10 bg-tech-green/20 rounded-full flex items-center justify-center">
-                            {candidate.avatar_url ? (
-                              <img src={candidate.avatar_url} alt={fullName} className="w-full h-full rounded-full object-cover" />
-                            ) : (
-                              <span className="text-tech-green font-semibold text-sm">{initials}</span>
-                            )}
-                          </div>
-                          <div className="flex-1">
-                            <h4 className="font-medium text-text-primary">{fullName || 'No Name'}</h4>
-                            <p className="text-sm text-text-secondary">{candidate.email}</p>
-                            <p className="text-xs text-text-secondary">Candidate</p>
+                          <Avatar className="h-10 w-10">
+                            <AvatarImage src={candidate.avatar_url || undefined} />
+                            <AvatarFallback className="bg-tech-green text-dark-primary">
+                              {initials}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <h4 className="text-text-primary font-medium">{fullName || 'Unnamed Candidate'}</h4>
+                            <p className="text-text-secondary text-sm">{candidate.email}</p>
                           </div>
                           {selectedCandidate?.id === candidate.id && (
-                            <Check size={16} className="text-tech-green" />
+                            <Check className="ml-auto text-tech-green h-5 w-5" />
                           )}
                         </div>
                       </CardContent>
@@ -272,27 +306,44 @@ const ScheduleInterviewModal = ({ onClose }: ScheduleInterviewModalProps) => {
             </div>
           </div>
         );
-
+      
       case 2:
         return (
           <div className="space-y-4">
             <div>
-              <Label htmlFor="position" className="text-text-primary">Position</Label>
-              <Input
-                id="position"
-                type="text"
-                placeholder="e.g., Senior Frontend Developer"
-                value={interviewDetails.position}
-                onChange={(e) => setInterviewDetails({ ...interviewDetails, position: e.target.value })}
-                className="bg-dark-primary border-border-dark text-text-primary"
-              />
+              <Label className="text-text-primary mb-2 block">Position</Label>
+              {loadingPositions ? (
+                <div className="flex items-center gap-2 text-text-secondary">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Loading positions...
+                </div>
+              ) : (
+                <Select 
+                  value={interviewDetails.position} 
+                  onValueChange={(value) => setInterviewDetails({...interviewDetails, position: value})}
+                >
+                  <SelectTrigger className="bg-dark-primary border-border-dark text-text-primary">
+                    <SelectValue placeholder="Select a position" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-dark-secondary border-border-dark">
+                    {positions.map(position => (
+                      <SelectItem key={position.id} value={position.id}>
+                        {position.title} - {position.department}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
-
+            
             <div>
-              <Label htmlFor="duration" className="text-text-primary">Duration</Label>
-              <Select value={interviewDetails.duration} onValueChange={(value) => setInterviewDetails({ ...interviewDetails, duration: value })}>
+              <Label className="text-text-primary mb-2 block">Duration (minutes)</Label>
+              <Select 
+                value={interviewDetails.duration} 
+                onValueChange={(value) => setInterviewDetails({...interviewDetails, duration: value})}
+              >
                 <SelectTrigger className="bg-dark-primary border-border-dark text-text-primary">
-                  <SelectValue />
+                  <SelectValue placeholder="Select duration" />
                 </SelectTrigger>
                 <SelectContent className="bg-dark-secondary border-border-dark">
                   <SelectItem value="30">30 minutes</SelectItem>
@@ -303,218 +354,214 @@ const ScheduleInterviewModal = ({ onClose }: ScheduleInterviewModalProps) => {
                 </SelectContent>
               </Select>
             </div>
-
+            
             <div>
-              <Label htmlFor="description" className="text-text-primary">Description (Optional)</Label>
-              <Textarea
-                id="description"
-                placeholder="Add any special instructions or notes for this interview..."
+              <Label className="text-text-primary mb-2 block">Description</Label>
+              <Textarea 
+                placeholder="Interview description and notes..."
                 value={interviewDetails.description}
-                onChange={(e) => setInterviewDetails({ ...interviewDetails, description: e.target.value })}
-                className="bg-dark-primary border-border-dark text-text-primary"
-                rows={3}
+                onChange={(e) => setInterviewDetails({...interviewDetails, description: e.target.value})}
+                className="bg-dark-primary border-border-dark text-text-primary min-h-[100px]"
               />
             </div>
           </div>
         );
-
+      
       case 3:
         return (
           <div className="space-y-4">
             <div>
-              <Label className="text-text-primary mb-2 block">Select Date</Label>
+              <Label className="text-text-primary mb-2 block">Date</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
                     className={cn(
-                      "w-full justify-start text-left font-normal bg-dark-primary border-border-dark",
+                      "w-full justify-start text-left font-normal bg-dark-primary border-border-dark text-text-primary",
                       !interviewDetails.date && "text-text-secondary"
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {interviewDetails.date ? format(interviewDetails.date, "PPP") : <span>Pick a date</span>}
+                    {interviewDetails.date ? format(interviewDetails.date, "PPP") : "Select a date"}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 bg-dark-secondary border-border-dark" align="start">
+                <PopoverContent className="w-auto p-0 bg-dark-secondary border-border-dark">
                   <Calendar
                     mode="single"
                     selected={interviewDetails.date}
-                    onSelect={(date) => setInterviewDetails({ ...interviewDetails, date })}
+                    onSelect={(date) => setInterviewDetails({...interviewDetails, date})}
                     initialFocus
-                    className="pointer-events-auto"
+                    disabled={(date) => date < new Date(Date.now() - 86400000)}
+                    className="bg-dark-secondary text-text-primary"
                   />
                 </PopoverContent>
               </Popover>
             </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="time" className="text-text-primary">Time</Label>
-                <Input
-                  id="time"
-                  type="time"
-                  value={interviewDetails.time}
-                  onChange={(e) => setInterviewDetails({ ...interviewDetails, time: e.target.value })}
-                  className="bg-dark-primary border-border-dark text-text-primary"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="timezone" className="text-text-primary">Timezone</Label>
-                <Select value={interviewDetails.timezone} onValueChange={(value) => setInterviewDetails({ ...interviewDetails, timezone: value })}>
-                  <SelectTrigger className="bg-dark-primary border-border-dark text-text-primary">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-dark-secondary border-border-dark">
-                    <SelectItem value="PST">PST (UTC-8)</SelectItem>
-                    <SelectItem value="EST">EST (UTC-5)</SelectItem>
-                    <SelectItem value="CST">CST (UTC-6)</SelectItem>
-                    <SelectItem value="MST">MST (UTC-7)</SelectItem>
-                    <SelectItem value="UTC">UTC (UTC+0)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            
+            <div>
+              <Label className="text-text-primary mb-2 block">Time</Label>
+              <Select 
+                value={interviewDetails.time} 
+                onValueChange={(value) => setInterviewDetails({...interviewDetails, time: value})}
+              >
+                <SelectTrigger className="bg-dark-primary border-border-dark text-text-primary">
+                  <SelectValue placeholder="Select time" />
+                </SelectTrigger>
+                <SelectContent className="bg-dark-secondary border-border-dark max-h-[300px]">
+                  {Array.from({ length: 24 }).map((_, hour) => (
+                    [0, 30].map((minute) => {
+                      const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+                      return (
+                        <SelectItem key={timeString} value={timeString}>
+                          {format(new Date().setHours(hour, minute), 'h:mm a')}
+                        </SelectItem>
+                      );
+                    })
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <Label className="text-text-primary mb-2 block">Timezone</Label>
+              <Select 
+                value={interviewDetails.timezone} 
+                onValueChange={(value) => setInterviewDetails({...interviewDetails, timezone: value})}
+              >
+                <SelectTrigger className="bg-dark-primary border-border-dark text-text-primary">
+                  <SelectValue placeholder="Select timezone" />
+                </SelectTrigger>
+                <SelectContent className="bg-dark-secondary border-border-dark">
+                  <SelectItem value="PST">Pacific Time (PST/PDT)</SelectItem>
+                  <SelectItem value="MST">Mountain Time (MST/MDT)</SelectItem>
+                  <SelectItem value="CST">Central Time (CST/CDT)</SelectItem>
+                  <SelectItem value="EST">Eastern Time (EST/EDT)</SelectItem>
+                  <SelectItem value="UTC">Coordinated Universal Time (UTC)</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         );
-
+      
       case 4:
         return (
           <div className="space-y-4">
-            <div>
-              <Label className="text-text-primary mb-2 block">Choose Interview Template</Label>
-              <p className="text-text-secondary text-sm mb-4">
-                Select a pre-configured template or create a custom interview structure
-              </p>
-            </div>
-
-            <div className="grid gap-3 max-h-64 overflow-y-auto">
-              {templates.map((template) => (
-                <Card 
-                  key={template.id} 
-                  className={`cursor-pointer transition-colors ${
-                    selectedTemplate?.id === template.id 
-                      ? 'bg-tech-green/10 border-tech-green' 
-                      : 'bg-dark-primary border-border-dark hover:border-tech-green/50'
-                  }`}
-                  onClick={() => setSelectedTemplate(template)}
-                >
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <h4 className="font-medium text-text-primary">{template.name}</h4>
-                          <Badge className={`${getDifficultyColor(template.difficulty)} border text-xs`}>
-                            {template.difficulty}
-                          </Badge>
+            <Label className="text-text-primary mb-2 block">Select Interview Template</Label>
+            
+            {loadingTemplates ? (
+              <div className="flex items-center justify-center p-8">
+                <Loader2 className="h-8 w-8 text-tech-green animate-spin" />
+              </div>
+            ) : templates.length === 0 ? (
+              <div className="text-center py-8 text-text-secondary">
+                No interview templates found
+              </div>
+            ) : (
+              <div className="grid gap-3 max-h-[400px] overflow-y-auto">
+                {templates.map((template) => (
+                  <Card 
+                    key={template.id} 
+                    className={`cursor-pointer transition-colors ${
+                      selectedTemplate?.id === template.id 
+                        ? 'bg-tech-green/10 border-tech-green' 
+                        : 'bg-dark-primary border-border-dark hover:border-tech-green/50'
+                    }`}
+                    onClick={() => setSelectedTemplate(template)}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="text-text-primary font-medium">{template.name}</h3>
+                          <p className="text-text-secondary text-sm mt-1">{template.description}</p>
+                          
+                          <div className="flex items-center gap-2 mt-3">
+                            <Badge className={getDifficultyColor(template.difficulty)}>
+                              {template.difficulty}
+                            </Badge>
+                            <span className="text-xs text-text-secondary">
+                              {template.duration} min • {template.questions} questions
+                            </span>
+                          </div>
                         </div>
-                        <p className="text-sm text-text-secondary mb-2">{template.description}</p>
-                        <div className="flex items-center gap-4 text-xs text-text-secondary">
-                          <span className="flex items-center gap-1">
-                            <Clock size={12} />
-                            {template.duration}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <FileText size={12} />
-                            {template.questions} questions
-                          </span>
-                        </div>
+                        
+                        {selectedTemplate?.id === template.id && (
+                          <Check className="text-tech-green h-5 w-5" />
+                        )}
                       </div>
-                      {selectedTemplate?.id === template.id && (
-                        <Check size={16} className="text-tech-green" />
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         );
-
+      
       case 5:
         return (
           <div className="space-y-6">
-            <div className="text-center mb-6">
-              <h3 className="text-lg font-semibold text-text-primary mb-2">Review Interview Details</h3>
-              <p className="text-text-secondary">Please review all details before scheduling the interview</p>
-            </div>
-
+            <h3 className="text-lg font-medium text-text-primary">Review Interview Details</h3>
+            
             <div className="space-y-4">
-              <Card className="bg-dark-primary border-border-dark">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-text-primary flex items-center gap-2">
-                    <User size={16} />
-                    Candidate
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {selectedCandidate && (
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-tech-green/20 rounded-full flex items-center justify-center">
-                        <span className="text-tech-green font-semibold text-sm">{selectedCandidate.avatar}</span>
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-text-primary">{selectedCandidate.name}</h4>
-                        <p className="text-sm text-text-secondary">{selectedCandidate.email}</p>
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card className="bg-dark-primary border-border-dark">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-text-primary flex items-center gap-2">
-                    <CalendarIcon size={16} />
-                    Schedule
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-text-secondary">Date:</span>
-                      <span className="text-text-primary">
-                        {interviewDetails.date ? format(interviewDetails.date, "PPP") : 'Not selected'}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-text-secondary">Time:</span>
-                      <span className="text-text-primary">{interviewDetails.time} {interviewDetails.timezone}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-text-secondary">Duration:</span>
-                      <span className="text-text-primary">{interviewDetails.duration} minutes</span>
+              <div>
+                <h4 className="text-sm font-medium text-text-secondary">Candidate</h4>
+                {selectedCandidate && (
+                  <div className="flex items-center mt-2 gap-3">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={selectedCandidate.avatar_url || undefined} />
+                      <AvatarFallback className="bg-tech-green text-dark-primary">
+                        {`${selectedCandidate.first_name?.[0] || ''}${selectedCandidate.last_name?.[0] || ''}`.toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="text-text-primary">
+                        {selectedCandidate.first_name} {selectedCandidate.last_name}
+                      </p>
+                      <p className="text-sm text-text-secondary">{selectedCandidate.email}</p>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-dark-primary border-border-dark">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-text-primary flex items-center gap-2">
-                    <FileText size={16} />
-                    Template
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {selectedTemplate && (
-                    <div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <h4 className="font-medium text-text-primary">{selectedTemplate.name}</h4>
-                        <Badge className={`${getDifficultyColor(selectedTemplate.difficulty)} border text-xs`}>
-                          {selectedTemplate.difficulty}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-text-secondary">{selectedTemplate.description}</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+                )}
+              </div>
+              
+              <div>
+                <h4 className="text-sm font-medium text-text-secondary">Position</h4>
+                <p className="text-text-primary mt-1">
+                  {positions.find(p => p.id === interviewDetails.position)?.title || 'Not specified'}
+                </p>
+              </div>
+              
+              <div>
+                <h4 className="text-sm font-medium text-text-secondary">Date & Time</h4>
+                <p className="text-text-primary mt-1">
+                  {interviewDetails.date 
+                    ? `${format(interviewDetails.date, "PPP")} at ${format(new Date().setHours(
+                        parseInt(interviewDetails.time.split(':')[0]),
+                        parseInt(interviewDetails.time.split(':')[1])
+                      ), 'h:mm a')} ${interviewDetails.timezone}`
+                    : 'Not specified'
+                  }
+                </p>
+              </div>
+              
+              <div>
+                <h4 className="text-sm font-medium text-text-secondary">Duration</h4>
+                <p className="text-text-primary mt-1">{interviewDetails.duration} minutes</p>
+              </div>
+              
+              <div>
+                <h4 className="text-sm font-medium text-text-secondary">Template</h4>
+                <p className="text-text-primary mt-1">{selectedTemplate?.name || 'None'}</p>
+              </div>
+              
+              {interviewDetails.description && (
+                <div>
+                  <h4 className="text-sm font-medium text-text-secondary">Description</h4>
+                  <p className="text-text-primary mt-1">{interviewDetails.description}</p>
+                </div>
+              )}
             </div>
           </div>
         );
-
+      
       default:
         return null;
     }
@@ -523,65 +570,59 @@ const ScheduleInterviewModal = ({ onClose }: ScheduleInterviewModalProps) => {
   return (
     <div className="space-y-6">
       {/* Progress Indicator */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-2">
-          {Array.from({ length: totalSteps }, (_, i) => (
-            <div key={i} className="flex items-center">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                i + 1 <= currentStep 
-                  ? 'bg-tech-green text-dark-primary' 
-                  : 'bg-dark-primary border border-border-dark text-text-secondary'
-              }`}>
-                {i + 1 <= currentStep ? <Check size={16} /> : i + 1}
-              </div>
-              {i < totalSteps - 1 && (
-                <div className={`w-8 h-0.5 mx-2 ${
-                  i + 1 < currentStep ? 'bg-tech-green' : 'bg-border-dark'
-                }`} />
-              )}
-            </div>
-          ))}
-        </div>
-        <div className="text-sm text-text-secondary">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-sm text-text-secondary">
           Step {currentStep} of {totalSteps}
+        </span>
+        <div className="flex gap-1">
+          {Array.from({ length: totalSteps }).map((_, index) => (
+            <div
+              key={index}
+              className={`h-1 w-6 rounded-full ${
+                index < currentStep ? 'bg-tech-green' : 'bg-dark-primary'
+              }`}
+            />
+          ))}
         </div>
       </div>
 
       {/* Step Content */}
-      <div className="min-h-[300px]">
-        {renderStep()}
-      </div>
+      {renderStep()}
 
-      {/* Navigation */}
-      <div className="flex justify-between pt-6 border-t border-border-dark">
+      {/* Navigation Buttons */}
+      <div className="flex justify-between pt-4 border-t border-border-dark">
         <Button
           variant="outline"
-          onClick={handlePrevious}
-          disabled={currentStep === 1}
-          className="border-border-dark text-text-secondary hover:text-text-primary disabled:opacity-50"
+          onClick={currentStep === 1 ? onClose : handlePrevious}
+          className="border-border-dark text-text-secondary hover:text-text-primary"
         >
-          <ChevronLeft size={16} className="mr-2" />
-          Previous
+          {currentStep === 1 ? 'Cancel' : (
+            <>
+              <ChevronLeft className="mr-2 h-4 w-4" />
+              Back
+            </>
+          )}
         </Button>
 
-        {currentStep === totalSteps ? (
-          <Button
-            onClick={handleSchedule}
-            disabled={!isStepValid() || isSubmitting}
-            className="bg-tech-green hover:bg-tech-green/90 text-dark-primary font-semibold disabled:opacity-50"
-          >
-            {isSubmitting ? 'Scheduling...' : 'Schedule Interview'}
-          </Button>
-        ) : (
-          <Button
-            onClick={handleNext}
-            disabled={!isStepValid()}
-            className="bg-tech-green hover:bg-tech-green/90 text-dark-primary font-semibold disabled:opacity-50"
-          >
-            Next
-            <ChevronRight size={16} className="ml-2" />
-          </Button>
-        )}
+        <Button
+          onClick={currentStep === totalSteps ? handleSchedule : handleNext}
+          disabled={(currentStep !== totalSteps && !isStepValid()) || isSubmitting}
+          className="bg-tech-green hover:bg-tech-green/90 text-dark-primary"
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Scheduling...
+            </>
+          ) : currentStep === totalSteps ? (
+            'Schedule Interview'
+          ) : (
+            <>
+              Next
+              <ChevronRight className="ml-2 h-4 w-4" />
+            </>
+          )}
+        </Button>
       </div>
     </div>
   );

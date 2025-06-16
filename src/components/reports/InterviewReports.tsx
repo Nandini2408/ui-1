@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,103 +17,13 @@ import {
   XCircle,
   AlertCircle
 } from 'lucide-react';
+import { useReportData } from '@/hooks/useReportData';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const InterviewReports = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
-
-  const interviewReports = [
-    {
-      id: 'RPT-001',
-      candidate: 'John Doe',
-      position: 'Senior Frontend Developer',
-      interviewer: 'Sarah Johnson',
-      date: '2024-01-15',
-      duration: '90 min',
-      status: 'completed',
-      overall_score: 8.7,
-      recommendation: 'hire',
-      ai_analysis: 'Strong technical skills with excellent problem-solving abilities',
-      sections: {
-        technical: 9.2,
-        communication: 8.5,
-        cultural_fit: 8.4,
-        problem_solving: 8.8
-      }
-    },
-    {
-      id: 'RPT-002',
-      candidate: 'Jane Smith',
-      position: 'Product Manager',
-      interviewer: 'Mike Chen',
-      date: '2024-01-14',
-      duration: '75 min',
-      status: 'completed',
-      overall_score: 7.3,
-      recommendation: 'consider',
-      ai_analysis: 'Good strategic thinking but needs improvement in technical understanding',
-      sections: {
-        technical: 6.8,
-        communication: 8.2,
-        cultural_fit: 7.9,
-        problem_solving: 7.4
-      }
-    },
-    {
-      id: 'RPT-003',
-      candidate: 'Alex Rodriguez',
-      position: 'DevOps Engineer',
-      interviewer: 'Emily Davis',
-      date: '2024-01-13',
-      duration: '105 min',
-      status: 'completed',
-      overall_score: 9.1,
-      recommendation: 'strong_hire',
-      ai_analysis: 'Exceptional technical expertise with strong leadership potential',
-      sections: {
-        technical: 9.5,
-        communication: 8.9,
-        cultural_fit: 9.0,
-        problem_solving: 9.0
-      }
-    },
-    {
-      id: 'RPT-004',
-      candidate: 'Maria Garcia',
-      position: 'UX Designer',
-      interviewer: 'John Smith',
-      date: '2024-01-12',
-      duration: '60 min',
-      status: 'in_review',
-      overall_score: 6.8,
-      recommendation: 'no_hire',
-      ai_analysis: 'Creative portfolio but lacks experience in user research methodologies',
-      sections: {
-        technical: 6.2,
-        communication: 7.8,
-        cultural_fit: 6.9,
-        problem_solving: 6.3
-      }
-    },
-    {
-      id: 'RPT-005',
-      candidate: 'David Wilson',
-      position: 'Data Scientist',
-      interviewer: 'Sarah Johnson',
-      date: '2024-01-11',
-      duration: '120 min',
-      status: 'completed',
-      overall_score: 8.4,
-      recommendation: 'hire',
-      ai_analysis: 'Strong analytical skills with good business acumen',
-      sections: {
-        technical: 8.9,
-        communication: 7.8,
-        cultural_fit: 8.6,
-        problem_solving: 8.4
-      }
-    }
-  ];
+  const { interviewReports, loading, error } = useReportData();
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -148,6 +57,19 @@ const InterviewReports = () => {
     const matchesFilter = filterStatus === 'all' || report.status === filterStatus;
     return matchesSearch && matchesFilter;
   });
+
+  if (error) {
+    return (
+      <Card className="bg-dark-secondary border-border-dark">
+        <CardContent className="p-6">
+          <div className="text-center text-red-400">
+            <AlertCircle className="h-8 w-8 mx-auto mb-2" />
+            <p>Error loading interview reports: {error}</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -189,126 +111,101 @@ const InterviewReports = () => {
 
       {/* Interview Reports List */}
       <div className="space-y-4">
-        {filteredReports.map((report) => (
-          <Card key={report.id} className="bg-dark-secondary border-border-dark hover:border-tech-green/50 transition-colors">
-            <CardContent className="p-6">
-              <div className="flex flex-col lg:flex-row gap-6">
-                {/* Report Header */}
-                <div className="flex-1">
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <h3 className="text-lg font-semibold text-text-primary">{report.candidate}</h3>
-                      <p className="text-text-secondary">{report.position}</p>
-                      <p className="text-sm text-text-secondary mt-1">Interview ID: {report.id}</p>
+        {loading ? (
+          // Loading skeletons
+          Array(3).fill(0).map((_, index) => (
+            <Card key={index} className="bg-dark-secondary border-border-dark">
+              <CardContent className="p-6">
+                <div className="flex flex-col lg:flex-row gap-6">
+                  <div className="flex-1">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="space-y-2">
+                        <Skeleton className="h-6 w-48" />
+                        <Skeleton className="h-4 w-32" />
+                      </div>
+                      <Skeleton className="h-6 w-24" />
                     </div>
-                    <div className="flex gap-2">
-                      {getStatusBadge(report.status)}
-                      {getRecommendationBadge(report.recommendation)}
-                    </div>
-                  </div>
-
-                  {/* Interview Details */}
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                    <div className="flex items-center gap-2">
-                      <User size={16} className="text-text-secondary" />
-                      <span className="text-sm text-text-secondary">{report.interviewer}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Clock size={16} className="text-text-secondary" />
-                      <span className="text-sm text-text-secondary">{report.duration}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Star size={16} className="text-text-secondary" />
-                      <span className={`text-sm font-medium ${getScoreColor(report.overall_score)}`}>
-                        {report.overall_score}/10
-                      </span>
-                    </div>
-                    <div className="text-sm text-text-secondary">{report.date}</div>
-                  </div>
-
-                  {/* Performance Breakdown */}
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                    <div className="text-center p-3 rounded-lg bg-dark-primary/50 border border-border-dark">
-                      <p className="text-xs text-text-secondary">Technical</p>
-                      <p className={`font-semibold ${getScoreColor(report.sections.technical)}`}>
-                        {report.sections.technical}
-                      </p>
-                    </div>
-                    <div className="text-center p-3 rounded-lg bg-dark-primary/50 border border-border-dark">
-                      <p className="text-xs text-text-secondary">Communication</p>
-                      <p className={`font-semibold ${getScoreColor(report.sections.communication)}`}>
-                        {report.sections.communication}
-                      </p>
-                    </div>
-                    <div className="text-center p-3 rounded-lg bg-dark-primary/50 border border-border-dark">
-                      <p className="text-xs text-text-secondary">Cultural Fit</p>
-                      <p className={`font-semibold ${getScoreColor(report.sections.cultural_fit)}`}>
-                        {report.sections.cultural_fit}
-                      </p>
-                    </div>
-                    <div className="text-center p-3 rounded-lg bg-dark-primary/50 border border-border-dark">
-                      <p className="text-xs text-text-secondary">Problem Solving</p>
-                      <p className={`font-semibold ${getScoreColor(report.sections.problem_solving)}`}>
-                        {report.sections.problem_solving}
-                      </p>
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-3/4" />
                     </div>
                   </div>
-
-                  {/* AI Analysis */}
-                  <div className="p-3 rounded-lg bg-dark-primary/30 border border-border-dark mb-4">
-                    <p className="text-xs text-text-secondary mb-1">AI Analysis Summary</p>
-                    <p className="text-sm text-text-primary">{report.ai_analysis}</p>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex gap-3">
-                    <Button size="sm" className="bg-tech-green hover:bg-tech-green/90 text-dark-primary">
-                      <Eye size={14} className="mr-2" />
-                      View Full Report
-                    </Button>
-                    <Button size="sm" variant="outline" className="border-border-dark text-text-secondary hover:text-text-primary">
-                      <Download size={14} className="mr-2" />
-                      Export PDF
-                    </Button>
-                    <Button size="sm" variant="outline" className="border-border-dark text-text-secondary hover:text-text-primary">
-                      <FileText size={14} className="mr-2" />
-                      Generate Summary
-                    </Button>
+                  <div className="flex flex-col gap-4 min-w-[200px]">
+                    <Skeleton className="h-8 w-full" />
+                    <Skeleton className="h-8 w-full" />
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+          ))
+        ) : filteredReports.length === 0 ? (
+          <Card className="bg-dark-secondary border-border-dark">
+            <CardContent className="p-6">
+              <div className="text-center text-text-secondary">
+                <FileText className="h-8 w-8 mx-auto mb-2" />
+                <p>No interview reports found</p>
               </div>
             </CardContent>
           </Card>
-        ))}
-      </div>
+        ) : (
+          filteredReports.map((report) => (
+            <Card key={report.id} className="bg-dark-secondary border-border-dark hover:border-tech-green/50 transition-colors">
+              <CardContent className="p-6">
+                <div className="flex flex-col lg:flex-row gap-6">
+                  {/* Report Header */}
+                  <div className="flex-1">
+                    <div className="flex items-start justify-between mb-4">
+                      <div>
+                        <h3 className="text-lg font-semibold text-text-primary">{report.candidate}</h3>
+                        <p className="text-text-secondary">{report.position}</p>
+                      </div>
+                      {getStatusBadge(report.status)}
+                    </div>
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-4 text-sm text-text-secondary">
+                        <div className="flex items-center gap-1">
+                          <User size={14} />
+                          <span>{report.interviewer}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Clock size={14} />
+                          <span>{report.duration}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Star size={14} />
+                          <span className={getScoreColor(report.overall_score)}>
+                            {report.overall_score.toFixed(1)}/10
+                          </span>
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-sm text-text-secondary">{report.ai_analysis}</p>
+                      </div>
+                      <div className="flex gap-2">
+                        {getRecommendationBadge(report.recommendation)}
+                      </div>
+                    </div>
+                  </div>
 
-      {/* Export All Reports */}
-      <Card className="bg-dark-secondary border-border-dark">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold text-text-primary mb-2">Bulk Export Options</h3>
-              <p className="text-text-secondary">Export multiple reports in various formats</p>
-            </div>
-            <div className="flex gap-3">
-              <Button variant="outline" className="border-border-dark text-text-secondary hover:text-text-primary">
-                <Download size={16} className="mr-2" />
-                Export Selected (PDF)
-              </Button>
-              <Button variant="outline" className="border-border-dark text-text-secondary hover:text-text-primary">
-                <Download size={16} className="mr-2" />
-                Export All (Excel)
-              </Button>
-              <Button className="bg-tech-green hover:bg-tech-green/90 text-dark-primary">
-                <FileText size={16} className="mr-2" />
-                Generate Summary Report
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+                  {/* Actions */}
+                  <div className="flex flex-col gap-2 min-w-[200px]">
+                    <Button className="w-full bg-tech-green hover:bg-tech-green/90 text-dark-primary">
+                      <Eye size={16} className="mr-2" />
+                      View Details
+                    </Button>
+                    <Button variant="outline" className="w-full border-border-dark text-text-secondary hover:text-text-primary">
+                      <Download size={16} className="mr-2" />
+                      Download Report
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        )}
+      </div>
     </div>
   );
-};
+}
 
 export default InterviewReports;

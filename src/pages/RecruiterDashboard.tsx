@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -100,33 +99,55 @@ const RecruiterDashboard = () => {
     }
   };
 
-  // Mock data
+  // Calculate stats from actual data
+  const activeInterviews = interviews.filter(interview => 
+    interview.status === 'scheduled' || interview.status === 'in_progress'
+  ).length;
+  
+  const pendingReviews = interviews.filter(interview => 
+    interview.status === 'completed' && !interview.feedback
+  ).length;
+  
+  // Get unique candidate IDs
+  const uniqueCandidates = new Set(
+    interviews.filter(interview => interview.candidate_id).map(interview => interview.candidate_id)
+  ).size;
+  
+  // Calculate this month's completed interviews
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const completedThisMonth = interviews.filter(interview => {
+    if (interview.status !== 'completed') return false;
+    const completedDate = new Date(interview.updated_at);
+    return completedDate >= startOfMonth;
+  }).length;
+  
   const stats: StatCard[] = [
     {
       title: 'Active Interviews',
-      value: '12',
-      change: '+3 from last week',
+      value: activeInterviews.toString(),
+      change: 'Currently active',
       icon: Calendar,
       color: 'text-tech-green'
     },
     {
       title: 'Total Candidates',
-      value: '148',
-      change: '+12 this month',
+      value: uniqueCandidates.toString(),
+      change: 'In your interviews',
       icon: Users,
       color: 'text-blue-400'
     },
     {
       title: 'Pending Reviews',
-      value: '8',
-      change: '2 due today',
+      value: pendingReviews.toString(),
+      change: 'Need feedback',
       icon: Clock,
       color: 'text-yellow-400'
     },
     {
-      title: 'This Month\'s Hires',
-      value: '6',
-      change: '+2 from last month',
+      title: 'This Month\'s Completed',
+      value: completedThisMonth.toString(),
+      change: `Since ${startOfMonth.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`,
       icon: CheckCircle,
       color: 'text-tech-green'
     }

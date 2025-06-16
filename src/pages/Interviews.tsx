@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,8 +11,9 @@ import { format } from "date-fns";
 import BackButton from "@/components/ui/back-button";
 
 const Interviews = () => {
-  const { interviews, loading } = useInterviews();
+  const { interviews, loading, updateInterviewStatuses } = useInterviews();
   const { profile } = useProfile();
+  const navigate = useNavigate();
   const [filter, setFilter] = useState<'all' | 'scheduled' | 'completed'>('all');
 
   // Determine the back destination based on user role
@@ -25,13 +27,22 @@ const Interviews = () => {
     }
   };
 
+  // Update interview statuses when the component loads
+  useEffect(() => {
+    if (interviews.length > 0) {
+      updateInterviewStatuses();
+    }
+  }, [interviews.length]);
+
   if (loading) {
     return <PageLoader text="Loading interviews..." />;
   }
 
   const filteredInterviews = interviews.filter(interview => {
     if (filter === 'all') return true;
-    return interview.status === filter;
+    if (filter === 'scheduled') return interview.status === 'scheduled' || interview.status === 'in_progress';
+    if (filter === 'completed') return interview.status === 'completed';
+    return true;
   });
 
   const getStatusColor = (status: string) => {
@@ -52,6 +63,98 @@ const Interviews = () => {
   const formatStatus = (status: string) => {
     return status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
   };
+
+  // Render an interview card
+  const renderInterviewCard = (interview: any) => (
+    <Card key={interview.id} className="bg-dark-secondary border-border-dark hover:border-tech-green/50 transition-colors">
+      <CardHeader>
+        <div className="flex items-start justify-between">
+          <div>
+            <CardTitle className="text-text-primary text-lg">
+              {interview.title}
+            </CardTitle>
+            <CardDescription className="text-text-secondary">
+              {interview.job_position?.title || 'No position specified'}
+            </CardDescription>
+          </div>
+          <Badge className={getStatusColor(interview.status)}>
+            {formatStatus(interview.status)}
+          </Badge>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {interview.scheduled_at && (
+          <div className="flex items-center gap-2 text-text-secondary">
+            <Calendar className="h-4 w-4" />
+            <span className="text-sm">
+              {format(new Date(interview.scheduled_at), 'PPP p')}
+            </span>
+          </div>
+        )}
+        
+        {interview.duration_minutes && (
+          <div className="flex items-center gap-2 text-text-secondary">
+            <Clock className="h-4 w-4" />
+            <span className="text-sm">{interview.duration_minutes} minutes</span>
+          </div>
+        )}
+
+        {profile?.role !== 'candidate' && interview.candidate && (
+          <div className="flex items-center gap-2 text-text-secondary">
+            <Users className="h-4 w-4" />
+            <span className="text-sm">
+              {interview.candidate.first_name} {interview.candidate.last_name}
+            </span>
+          </div>
+        )}
+
+        {profile?.role === 'candidate' && interview.recruiter && (
+          <div className="flex items-center gap-2 text-text-secondary">
+            <Users className="h-4 w-4" />
+            <span className="text-sm">
+              Interviewer: {interview.recruiter.first_name} {interview.recruiter.last_name}
+            </span>
+          </div>
+        )}
+
+        {interview.job_position?.company && (
+          <div className="text-sm text-text-secondary">
+            Company: {interview.job_position.company.name}
+          </div>
+        )}
+
+        {interview.overall_score !== null && (
+          <div className="text-sm text-text-secondary">
+            Score: {interview.overall_score}/100
+          </div>
+        )}
+
+        <div className="flex gap-2 pt-2">
+          {interview.meeting_url && (interview.status === 'scheduled' || interview.status === 'in_progress') && (
+            <Button 
+              size="sm" 
+              className="bg-tech-green hover:bg-tech-green/90 text-dark-primary"
+              onClick={() => window.open(interview.meeting_url!, '_blank')}
+            >
+              <VideoIcon className="h-4 w-4 mr-2" />
+              Join Interview
+            </Button>
+          )}
+          
+          <Button 
+            size="sm" 
+            variant={interview.status === 'completed' ? 'outline' : 'default'}
+            className={interview.status === 'completed' 
+              ? "border-border-dark text-text-secondary hover:text-text-primary" 
+              : "bg-tech-green hover:bg-tech-green/90 text-dark-primary"}
+            onClick={() => navigate(`/interview-room?id=${interview.id}`)}
+          >
+            {interview.status === 'completed' ? 'View Details' : 'Join Now'}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
 
   return (
     <div className="min-h-screen bg-dark-primary">
@@ -115,95 +218,53 @@ const Interviews = () => {
             </CardContent>
           </Card>
         ) : (
+          <>
+            {filter === 'all' && (
+              <>
+                {/* Scheduled Interviews Section */}
+                {filteredInterviews.filter(i => i.status === 'scheduled').length > 0 && (
+                  <div className="mb-8">
+                    <h2 className="text-xl font-semibold text-text-primary mt-8 mb-4">Scheduled Interviews</h2>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {filteredInterviews.map((interview) => (
-              <Card key={interview.id} className="bg-dark-secondary border-border-dark hover:border-tech-green/50 transition-colors">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <CardTitle className="text-text-primary text-lg">
-                        {interview.title}
-                      </CardTitle>
-                      <CardDescription className="text-text-secondary">
-                        {interview.job_position?.title || 'No position specified'}
-                      </CardDescription>
+                      {filteredInterviews
+                        .filter(i => i.status === 'scheduled')
+                        .map(interview => renderInterviewCard(interview))}
                     </div>
-                    <Badge className={getStatusColor(interview.status)}>
-                      {formatStatus(interview.status)}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {interview.scheduled_at && (
-                    <div className="flex items-center gap-2 text-text-secondary">
-                      <Calendar className="h-4 w-4" />
-                      <span className="text-sm">
-                        {format(new Date(interview.scheduled_at), 'PPP p')}
-                      </span>
                     </div>
                   )}
                   
-                  {interview.duration_minutes && (
-                    <div className="flex items-center gap-2 text-text-secondary">
-                      <Clock className="h-4 w-4" />
-                      <span className="text-sm">{interview.duration_minutes} minutes</span>
+                {/* In Progress Interviews Section */}
+                {filteredInterviews.filter(i => i.status === 'in_progress').length > 0 && (
+                  <div className="mb-8">
+                    <h2 className="text-xl font-semibold text-text-primary mt-8 mb-4">In Progress Interviews</h2>
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                      {filteredInterviews
+                        .filter(i => i.status === 'in_progress')
+                        .map(interview => renderInterviewCard(interview))}
+                    </div>
                     </div>
                   )}
 
-                  {profile?.role !== 'candidate' && interview.candidate && (
-                    <div className="flex items-center gap-2 text-text-secondary">
-                      <Users className="h-4 w-4" />
-                      <span className="text-sm">
-                        {interview.candidate.first_name} {interview.candidate.last_name}
-                      </span>
+                {/* Completed Interviews Section */}
+                {filteredInterviews.filter(i => i.status === 'completed').length > 0 && (
+                  <div>
+                    <h2 className="text-xl font-semibold text-text-primary mt-8 mb-4">Completed Interviews</h2>
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                      {filteredInterviews
+                        .filter(i => i.status === 'completed')
+                        .map(interview => renderInterviewCard(interview))}
+                    </div>
+                    </div>
+                )}
+              </>
+            )}
+            
+            {filter !== 'all' && (
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {filteredInterviews.map(interview => renderInterviewCard(interview))}
                     </div>
                   )}
-
-                  {profile?.role === 'candidate' && interview.recruiter && (
-                    <div className="flex items-center gap-2 text-text-secondary">
-                      <Users className="h-4 w-4" />
-                      <span className="text-sm">
-                        Interviewer: {interview.recruiter.first_name} {interview.recruiter.last_name}
-                      </span>
-                    </div>
-                  )}
-
-                  {interview.job_position?.company && (
-                    <div className="text-sm text-text-secondary">
-                      Company: {interview.job_position.company.name}
-                    </div>
-                  )}
-
-                  {interview.overall_score !== null && (
-                    <div className="text-sm text-text-secondary">
-                      Score: {interview.overall_score}/100
-                    </div>
-                  )}
-
-                  <div className="flex gap-2 pt-2">
-                    {interview.meeting_url && interview.status === 'scheduled' && (
-                      <Button 
-                        size="sm" 
-                        className="bg-tech-green hover:bg-tech-green/90 text-dark-primary"
-                        onClick={() => window.open(interview.meeting_url!, '_blank')}
-                      >
-                        <VideoIcon className="h-4 w-4 mr-2" />
-                        Join Interview
-                      </Button>
-                    )}
-                    
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      className="border-border-dark text-text-secondary hover:text-text-primary"
-                    >
-                      View Details
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          </>
         )}
       </div>
     </div>

@@ -12,11 +12,14 @@ import {
   MessageSquare, 
   Brain,
   FileText,
-  Search
+  Search,
+  User,
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
+import { useProfile } from '@/hooks/useProfile';
 
 interface NavItemProps {
   icon: React.ElementType;
@@ -31,14 +34,17 @@ const NavItem: React.FC<NavItemProps> = ({ icon: Icon, label, isActive, onClick 
     <Button
       variant="ghost"
       className={cn(
-        "flex items-center gap-3 px-3 py-2 rounded-md w-full justify-start",
+        "flex items-center gap-3 px-3 py-2 rounded-md w-full justify-start relative",
         isActive 
-          ? "bg-tech-green/10 text-tech-green border-l-2 border-tech-green" 
-          : "text-text-secondary hover:text-text-primary hover:bg-dark-primary"
+          ? "bg-tech-green/10 text-tech-green font-medium before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-tech-green before:rounded-r-md after:absolute after:right-0 after:top-0 after:bottom-0 after:w-1 after:bg-tech-green/30 after:rounded-l-md" 
+          : "text-text-secondary hover:text-text-primary hover:bg-dark-primary hover:before:absolute hover:before:left-0 hover:before:top-0 hover:before:bottom-0 hover:before:w-1 hover:before:bg-tech-green/30 hover:before:rounded-r-md"
       )}
       onClick={onClick}
     >
-      <Icon className="h-5 w-5" />
+      <Icon className={cn(
+        "h-5 w-5 transition-transform",
+        isActive && "transform scale-110"
+      )} />
       <span>{label}</span>
     </Button>
   );
@@ -47,12 +53,14 @@ const NavItem: React.FC<NavItemProps> = ({ icon: Icon, label, isActive, onClick 
 const DesktopNav: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { profile, loading } = useProfile();
   
   const mainNavItems = [
     { label: 'Dashboard', icon: Home, path: '/recruiter-dashboard' },
     { label: 'Candidates', icon: Users, path: '/candidates' },
     { label: 'Interviews', icon: Calendar, path: '/interviews' },
     { label: 'Reports', icon: BarChart3, path: '/reports' },
+    { label: 'Profile', icon: User, path: '/profile' },
   ];
   
   const interviewNavItems = [
@@ -65,6 +73,21 @@ const DesktopNav: React.FC = () => {
   
   const isInterviewRoom = location.pathname.includes('interview-room');
   const activeNavItems = isInterviewRoom ? interviewNavItems : mainNavItems;
+  
+  // Check if path is active, including partial matches for nested routes
+  const isPathActive = (path: string) => {
+    if (path === '/recruiter-dashboard' && location.pathname === '/') {
+      return true;
+    }
+    return location.pathname.startsWith(path);
+  };
+  
+  const getInitials = () => {
+    if (!profile) return '';
+    const first = profile.first_name?.charAt(0) || '';
+    const last = profile.last_name?.charAt(0) || '';
+    return `${first}${last}`.toUpperCase() || profile.email.charAt(0).toUpperCase();
+  };
   
   return (
     <div className="h-full w-64 bg-dark-secondary border-r border-border-dark flex flex-col">
@@ -96,7 +119,7 @@ const DesktopNav: React.FC = () => {
               icon={item.icon}
               label={item.label}
               path={item.path}
-              isActive={location.pathname === item.path}
+              isActive={isPathActive(item.path)}
               onClick={() => navigate(item.path)}
             />
           ))}
@@ -107,20 +130,16 @@ const DesktopNav: React.FC = () => {
             <div className="my-4 border-t border-border-dark"></div>
             <h4 className="text-text-secondary text-xs uppercase font-medium mb-2 px-2">Interview Tools</h4>
             <nav className="space-y-1">
-              <NavItem
-                icon={FileText}
-                label="Problem Statement"
-                path="/interview-room/problem"
-                isActive={location.pathname === '/interview-room/problem'}
-                onClick={() => navigate('/interview-room/problem')}
-              />
-              <NavItem
-                icon={Brain}
-                label="AI Analysis"
-                path="/interview-room/analysis"
-                isActive={location.pathname === '/interview-room/analysis'}
-                onClick={() => navigate('/interview-room/analysis')}
-              />
+              {interviewNavItems.map((item) => (
+                <NavItem
+                  key={item.path}
+                  icon={item.icon}
+                  label={item.label}
+                  path={item.path}
+                  isActive={isPathActive(item.path)}
+                  onClick={() => navigate(item.path)}
+                />
+              ))}
             </nav>
           </>
         )}
@@ -128,28 +147,37 @@ const DesktopNav: React.FC = () => {
       
       {/* User Profile */}
       <div className="p-4 border-t border-border-dark">
-        <div className="flex items-center gap-3">
-          <Avatar>
-            <AvatarImage src="/avatars/recruiter.jpg" />
-            <AvatarFallback className="bg-tech-green text-dark-primary">JD</AvatarFallback>
-          </Avatar>
-          <div>
-            <p className="text-white text-sm font-medium">John Doe</p>
-            <p className="text-text-secondary text-xs">Recruiter</p>
+        {loading ? (
+          <div className="flex items-center justify-center">
+            <Loader2 className="h-5 w-5 text-tech-green animate-spin" />
           </div>
-        </div>
+        ) : (
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/profile')}>
+            <Avatar>
+              <AvatarImage src={profile?.avatar_url || undefined} />
+              <AvatarFallback className="bg-tech-green text-dark-primary">{getInitials()}</AvatarFallback>
+            </Avatar>
+            <div>
+              <p className="text-white text-sm font-medium">
+                {profile?.first_name} {profile?.last_name}
+              </p>
+              <p className="text-text-secondary text-xs">
+                {profile?.role.charAt(0).toUpperCase() + profile?.role.slice(1)}
+              </p>
+            </div>
+          </div>
+        )}
       </div>
       
       {/* Settings */}
       <div className="p-4 border-t border-border-dark">
-        <Button 
-          variant="ghost" 
-          className="flex items-center gap-3 w-full justify-start text-text-secondary hover:text-text-primary hover:bg-dark-primary"
+        <NavItem
+          icon={Settings}
+          label="Settings"
+          path="/settings"
+          isActive={isPathActive('/settings')}
           onClick={() => navigate('/settings')}
-        >
-          <Settings className="h-5 w-5" />
-          <span>Settings</span>
-        </Button>
+        />
       </div>
     </div>
   );

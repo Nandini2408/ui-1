@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -12,13 +13,28 @@ import PageLoader from "@/components/loading/PageLoader";
 import { BulkActions } from "@/components/candidates/BulkActions";
 import ScheduleInterviewModal from "@/components/ScheduleInterviewModal";
 import { format } from "date-fns";
+import BackButton from "@/components/ui/back-button";
+import { useProfile } from "@/hooks/useProfile";
 
 const Candidates = () => {
   const { candidates, loading } = useCandidates();
+  const { profile } = useProfile();
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCandidates, setSelectedCandidates] = useState<string[]>([]);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [selectedCandidateForScheduling, setSelectedCandidateForScheduling] = useState<any>(null);
+  
+  // Determine the back destination based on user role
+  const getBackDestination = () => {
+    if (profile?.role === 'recruiter') {
+      return '/recruiter-dashboard';
+    } else if (profile?.role === 'admin') {
+      return '/admin-dashboard';
+    } else {
+      return '/';
+    }
+  };
 
   if (loading) {
     return <PageLoader text="Loading candidates..." />;
@@ -72,11 +88,19 @@ const Candidates = () => {
   return (
     <div className="min-h-screen bg-dark-primary">
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
+        <div className="flex items-center gap-4 mb-8">
+          <BackButton 
+            to={getBackDestination()}
+            label="Back to Dashboard" 
+            className="text-text-secondary hover:text-text-primary"
+          />
+          <div className="h-6 w-px bg-border-dark"></div>
+          <div>
           <h1 className="text-3xl font-bold text-text-primary mb-2">Candidates</h1>
           <p className="text-text-secondary">
             Manage and review candidate profiles
           </p>
+          </div>
         </div>
 
         {/* Search and Bulk Actions */}
@@ -187,13 +211,7 @@ const Candidates = () => {
                     >
                       Schedule Interview
                     </Button>
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      className="border-border-dark text-text-secondary hover:text-text-primary"
-                    >
-                      View Profile
-                    </Button>
+
                   </div>
                 </CardContent>
               </Card>

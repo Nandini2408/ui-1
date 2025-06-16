@@ -145,11 +145,54 @@ export const useInterviews = () => {
     }
   };
 
+  // Function to update interview status based on scheduled time
+  const updateInterviewStatuses = async () => {
+    const now = new Date();
+    
+    // Get interviews that need status updates
+    const scheduledInterviews = interviews.filter(interview => 
+      interview.status === 'scheduled' && 
+      interview.scheduled_at && 
+      new Date(interview.scheduled_at) < now
+    );
+    
+    // Update completed interviews that are past their scheduled time + duration
+    const completedInterviews = interviews.filter(interview => 
+      interview.status === 'in_progress' && 
+      interview.scheduled_at && 
+      interview.duration_minutes && 
+      new Date(new Date(interview.scheduled_at).getTime() + interview.duration_minutes * 60 * 1000) < now
+    );
+    
+    // Process updates for scheduled -> in_progress
+    for (const interview of scheduledInterviews) {
+      await updateInterview(interview.id, { status: 'in_progress' });
+    }
+    
+    // Process updates for in_progress -> completed
+    for (const interview of completedInterviews) {
+      await updateInterview(interview.id, { status: 'completed' });
+    }
+    
+    // Refresh interviews after updates
+    if (scheduledInterviews.length > 0 || completedInterviews.length > 0) {
+      await fetchInterviews();
+    }
+  };
+  
+  // Call updateInterviewStatuses when component mounts and when interviews change
+  useEffect(() => {
+    if (interviews.length > 0) {
+      updateInterviewStatuses();
+    }
+  }, [interviews.length]);
+
   return {
     interviews,
     loading,
     fetchInterviews,
     createInterview,
-    updateInterview
+    updateInterview,
+    updateInterviewStatuses
   };
 };

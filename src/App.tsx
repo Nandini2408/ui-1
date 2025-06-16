@@ -18,6 +18,8 @@ import CandidateDashboard from "./pages/CandidateDashboard";
 import Schedule from "./pages/Schedule";
 import AdminDashboard from "./pages/AdminDashboard";
 import Reports from "./pages/Reports";
+import Settings from "./pages/Settings";
+import Profile from "./pages/Profile";
 
 // New imports for interview pages
 import InterviewLayout from "./layouts/InterviewLayout";
@@ -70,6 +72,14 @@ const App = () => (
                 element={
                   <ProtectedRoute requireRole="admin">
                     <AdminDashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/settings" 
+                element={
+                  <ProtectedRoute>
+                    <Settings />
                   </ProtectedRoute>
                 } 
               />
@@ -130,6 +140,16 @@ const App = () => (
                 element={
                   <ProtectedRoute requireRole="recruiter">
                     <Reports />
+                  </ProtectedRoute>
+                } 
+              />
+              
+              {/* Profile Route */}
+              <Route 
+                path="/profile" 
+                element={
+                  <ProtectedRoute>
+                    <Profile />
                   </ProtectedRoute>
                 } 
               />

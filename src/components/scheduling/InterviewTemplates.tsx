@@ -1,76 +1,90 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Plus, Search, Clock, FileText, Users, Star, Edit, Copy, Trash2 } from 'lucide-react';
+import { Plus, Search, Clock, FileText, Users, Star, Edit, Copy, Trash2, Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+
+interface Template {
+  id: string;
+  name: string;
+  duration_minutes: number;
+  questions_count: number;
+  sections: string[];
+  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
+  usage_count: number;
+  rating: number;
+  last_used_at: string | null;
+  is_public: boolean;
+}
 
 const InterviewTemplates = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    totalTemplates: 0,
+    totalUsage: 0,
+    avgRating: 0
+  });
+  const { toast } = useToast();
 
-  const mockTemplates = [
-    {
-      id: '1',
-      name: 'Frontend Technical Interview',
-      duration: '60 min',
-      questions: 12,
-      sections: ['JavaScript Fundamentals', 'React/Vue', 'CSS & HTML', 'Problem Solving'],
-      difficulty: 'Intermediate',
-      usage: 45,
-      rating: 4.8,
-      lastUsed: '2 days ago',
-      isPublic: true
-    },
-    {
-      id: '2',
-      name: 'Backend System Design',
-      duration: '90 min',
-      questions: 8,
-      sections: ['System Architecture', 'Database Design', 'API Design', 'Scalability'],
-      difficulty: 'Advanced',
-      usage: 32,
-      rating: 4.9,
-      lastUsed: '1 day ago',
-      isPublic: false
-    },
-    {
-      id: '3',
-      name: 'Full Stack Assessment',
-      duration: '120 min',
-      questions: 15,
-      sections: ['Frontend', 'Backend', 'Database', 'DevOps', 'Problem Solving'],
-      difficulty: 'Advanced',
-      usage: 28,
-      rating: 4.7,
-      lastUsed: '5 days ago',
-      isPublic: true
-    },
-    {
-      id: '4',
-      name: 'Junior Developer Screening',
-      duration: '45 min',
-      questions: 10,
-      sections: ['Basic Programming', 'Logic & Algorithms', 'Code Reading'],
-      difficulty: 'Beginner',
-      usage: 67,
-      rating: 4.6,
-      lastUsed: '1 day ago',
-      isPublic: true
-    },
-    {
-      id: '5',
-      name: 'DevOps Engineer Interview',
-      duration: '75 min',
-      questions: 11,
-      sections: ['CI/CD', 'Cloud Platforms', 'Infrastructure', 'Monitoring'],
-      difficulty: 'Intermediate',
-      usage: 21,
-      rating: 4.5,
-      lastUsed: '3 days ago',
-      isPublic: false
+  useEffect(() => {
+    fetchTemplates();
+  }, []);
+
+  const fetchTemplates = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('interview_templates')
+        .select('*');
+
+      if (error) {
+        throw error;
+      }
+
+      // Process templates data
+      const processedTemplates = data.map(template => ({
+        id: template.id,
+        name: template.name,
+        duration_minutes: template.duration_minutes || 60,
+        questions_count: template.questions_count || 0,
+        sections: template.sections || [],
+        difficulty: template.difficulty || 'Intermediate',
+        usage_count: template.usage_count || 0,
+        rating: template.rating || 0,
+        last_used_at: template.last_used_at,
+        is_public: template.is_public || false
+      }));
+
+      setTemplates(processedTemplates);
+
+      // Calculate stats
+      if (processedTemplates.length > 0) {
+        const totalUsage = processedTemplates.reduce((sum, template) => sum + template.usage_count, 0);
+        const totalRating = processedTemplates.reduce((sum, template) => sum + template.rating, 0);
+        const avgRating = totalRating / processedTemplates.length;
+
+        setStats({
+          totalTemplates: processedTemplates.length,
+          totalUsage,
+          avgRating: Math.round(avgRating * 10) / 10 // Round to 1 decimal place
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching templates:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load interview templates',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -81,7 +95,25 @@ const InterviewTemplates = () => {
     }
   };
 
-  const filteredTemplates = mockTemplates.filter(template =>
+  const formatDuration = (minutes: number) => {
+    return `${minutes} min`;
+  };
+
+  const formatLastUsed = (dateString: string | null) => {
+    if (!dateString) return 'Never used';
+    
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+    return `${Math.floor(diffDays / 30)} months ago`;
+  };
+
+  const filteredTemplates = templates.filter(template =>
     template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     template.sections.some(section => section.toLowerCase().includes(searchQuery.toLowerCase()))
   );
@@ -129,9 +161,20 @@ const InterviewTemplates = () => {
         </CardContent>
       </Card>
 
+      {loading ? (
+        <div className="flex justify-center py-12">
+          <Loader2 className="h-8 w-8 text-tech-green animate-spin" />
+        </div>
+      ) : (
+        <>
       {/* Templates Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {filteredTemplates.map((template) => (
+            {filteredTemplates.length === 0 ? (
+              <div className="lg:col-span-2 text-center py-12 text-text-secondary">
+                {searchQuery ? 'No templates match your search' : 'No templates found. Create your first template!'}
+              </div>
+            ) : (
+              filteredTemplates.map((template) => (
           <Card key={template.id} className="bg-dark-secondary border-border-dark hover:border-tech-green/30 transition-colors">
             <CardHeader>
               <div className="flex items-start justify-between">
@@ -140,24 +183,26 @@ const InterviewTemplates = () => {
                   <div className="flex items-center gap-3 text-sm text-text-secondary">
                     <span className="flex items-center gap-1">
                       <Clock size={12} />
-                      {template.duration}
+                            {formatDuration(template.duration_minutes)}
                     </span>
                     <span className="flex items-center gap-1">
                       <FileText size={12} />
-                      {template.questions} questions
+                            {template.questions_count} questions
                     </span>
                     <span className="flex items-center gap-1">
                       <Users size={12} />
-                      {template.usage} uses
+                            {template.usage_count} uses
                     </span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
+                        {template.rating > 0 && (
                   <div className="flex items-center gap-1 text-yellow-400">
                     <Star size={12} fill="currentColor" />
-                    <span className="text-xs">{template.rating}</span>
+                            <span className="text-xs">{template.rating.toFixed(1)}</span>
                   </div>
-                  {template.isPublic && (
+                        )}
+                        {template.is_public && (
                     <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 text-xs">
                       Public
                     </Badge>
@@ -182,7 +227,7 @@ const InterviewTemplates = () => {
               
               <div className="flex items-center justify-between pt-4 border-t border-border-dark">
                 <span className="text-xs text-text-secondary">
-                  Last used {template.lastUsed}
+                        Last used {formatLastUsed(template.last_used_at)}
                 </span>
                 <div className="flex gap-2">
                   <Button size="sm" variant="ghost" className="text-text-secondary hover:text-text-primary">
@@ -198,7 +243,8 @@ const InterviewTemplates = () => {
               </div>
             </CardContent>
           </Card>
-        ))}
+              ))
+            )}
       </div>
 
       {/* Template Analytics */}
@@ -208,7 +254,7 @@ const InterviewTemplates = () => {
             <div className="flex items-center gap-3">
               <FileText className="h-8 w-8 text-tech-green" />
               <div>
-                <p className="text-lg font-semibold text-text-primary">24</p>
+                    <p className="text-lg font-semibold text-text-primary">{stats.totalTemplates}</p>
                 <p className="text-sm text-text-secondary">Total Templates</p>
               </div>
             </div>
@@ -220,7 +266,7 @@ const InterviewTemplates = () => {
             <div className="flex items-center gap-3">
               <Users className="h-8 w-8 text-blue-400" />
               <div>
-                <p className="text-lg font-semibold text-text-primary">156</p>
+                    <p className="text-lg font-semibold text-text-primary">{stats.totalUsage}</p>
                 <p className="text-sm text-text-secondary">Total Usage</p>
               </div>
             </div>
@@ -232,49 +278,15 @@ const InterviewTemplates = () => {
             <div className="flex items-center gap-3">
               <Star className="h-8 w-8 text-yellow-400" />
               <div>
-                <p className="text-lg font-semibold text-text-primary">4.7</p>
+                    <p className="text-lg font-semibold text-text-primary">{stats.avgRating}</p>
                 <p className="text-sm text-text-secondary">Avg Rating</p>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
-
-      {/* Popular Templates */}
-      <Card className="bg-dark-secondary border-border-dark">
-        <CardHeader>
-          <CardTitle className="text-lg text-text-primary">Most Popular Templates</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {mockTemplates
-              .sort((a, b) => b.usage - a.usage)
-              .slice(0, 3)
-              .map((template, index) => (
-                <div key={template.id} className="flex items-center justify-between p-3 bg-dark-primary rounded-lg border border-border-dark">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-tech-green rounded-full flex items-center justify-center text-dark-primary font-semibold text-sm">
-                      {index + 1}
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-text-primary">{template.name}</h4>
-                      <p className="text-sm text-text-secondary">{template.usage} uses this month</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1 text-yellow-400">
-                      <Star size={12} fill="currentColor" />
-                      <span className="text-xs">{template.rating}</span>
-                    </div>
-                    <Badge className={`${getDifficultyColor(template.difficulty)} border text-xs`}>
-                      {template.difficulty}
-                    </Badge>
-                  </div>
-                </div>
-              ))}
-          </div>
-        </CardContent>
-      </Card>
+        </>
+      )}
     </div>
   );
 };

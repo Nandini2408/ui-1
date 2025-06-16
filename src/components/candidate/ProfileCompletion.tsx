@@ -1,23 +1,87 @@
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle, AlertCircle, User, FileText, Award } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useProfile } from '@/hooks/useProfile';
+import { supabase } from '@/integrations/supabase/client';
 
 const ProfileCompletion = () => {
   const navigate = useNavigate();
-  
-  const completionItems = [
-    { name: 'Personal Information', completed: true, icon: User, path: '/profile?section=personal' },
-    { name: 'Resume Upload', completed: true, icon: FileText, path: '/profile?section=resume' },
+  const { profile } = useProfile();
+  const [completionItems, setCompletionItems] = useState([
+    { name: 'Personal Information', completed: false, icon: User, path: '/profile?section=personal' },
+    { name: 'Resume Upload', completed: false, icon: FileText, path: '/profile?section=resume' },
     { name: 'Skills Assessment', completed: false, icon: Award, path: '/assessments' },
-    { name: 'Work Experience', completed: true, icon: User, path: '/profile?section=experience' },
+    { name: 'Work Experience', completed: false, icon: User, path: '/profile?section=experience' },
     { name: 'Education Details', completed: false, icon: Award, path: '/profile?section=education' },
     { name: 'Portfolio Projects', completed: false, icon: FileText, path: '/profile?section=projects' }
-  ];
+  ]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (profile) {
+      fetchProfileCompletionData();
+    }
+  }, [profile]);
+
+  const fetchProfileCompletionData = async () => {
+    setLoading(true);
+    try {
+      // Fetch profile data to determine completion status
+      const updatedItems = [...completionItems];
+      
+      // Personal information is completed if first_name and last_name are set
+      updatedItems[0].completed = !!(profile?.first_name && profile?.last_name);
+      
+      // Check if resume is uploaded (can be expanded based on your DB structure)
+      if (profile?.id) {
+        const { data: resumeData } = await supabase
+          .from('profiles')
+          .select('resume_url')
+          .eq('id', profile.id)
+          .single();
+          
+        updatedItems[1].completed = !!resumeData?.resume_url;
+      }
+      
+      // Check if skills assessment is completed
+      if (profile?.id) {
+        const { data: assessmentData, error } = await supabase
+          .from('assessment_submissions')
+          .select('id')
+          .eq('candidate_id', profile.id)
+          .limit(1);
+          
+        updatedItems[2].completed = assessmentData && assessmentData.length > 0;
+      }
+      
+      // Check work experience
+      if (profile?.id) {
+        const { data: experienceData } = await supabase
+          .from('profiles')
+          .select('experience_years')
+          .eq('id', profile.id)
+          .single();
+          
+        updatedItems[3].completed = experienceData?.experience_years !== null && 
+                                   experienceData?.experience_years !== undefined;
+      }
+      
+      // For education and portfolio, you would need to check related tables
+      // This is a placeholder implementation
+      updatedItems[4].completed = false;
+      updatedItems[5].completed = false;
+      
+      setCompletionItems(updatedItems);
+    } catch (error) {
+      console.error('Error fetching profile completion data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const completedCount = completionItems.filter(item => item.completed).length;
   const completionPercentage = Math.round((completedCount / completionItems.length) * 100);

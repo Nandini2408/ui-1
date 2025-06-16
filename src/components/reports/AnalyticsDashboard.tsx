@@ -60,9 +60,21 @@ const AnalyticsDashboard = () => {
               <div>
                 <p className="text-sm text-text-secondary">Interview Completion Rate</p>
                 <p className="text-2xl font-bold text-text-primary mt-1">{analytics.completionRate}%</p>
-                <p className="text-sm mt-1 text-tech-green flex items-center">
-                  <TrendingUp size={12} className="mr-1" />
-                  +2.3% vs last month
+                <p className={`text-sm mt-1 flex items-center ${
+                  analytics.completionRate > 0 ? 'text-tech-green' : 'text-red-400'
+                }`}>
+                  {analytics.completionRate > 0 ? (
+                    <TrendingUp size={12} className="mr-1" />
+                  ) : (
+                    <TrendingDown size={12} className="mr-1" />
+                  )}
+                  {analytics.monthlyTrends && analytics.monthlyTrends.length > 1 ? 
+                    `${analytics.monthlyTrends[analytics.monthlyTrends.length - 1].success_rate - 
+                      analytics.monthlyTrends[analytics.monthlyTrends.length - 2].success_rate > 0 ? '+' : ''}
+                    ${(analytics.monthlyTrends[analytics.monthlyTrends.length - 1].success_rate - 
+                      analytics.monthlyTrends[analytics.monthlyTrends.length - 2].success_rate).toFixed(1)}% vs last month` : 
+                    'No previous data'
+                  }
                 </p>
               </div>
               <Target className="h-8 w-8 text-tech-green" />
@@ -78,7 +90,9 @@ const AnalyticsDashboard = () => {
                 <p className="text-2xl font-bold text-text-primary mt-1">{analytics.averageScore}/10</p>
                 <p className="text-sm mt-1 text-tech-green flex items-center">
                   <TrendingUp size={12} className="mr-1" />
-                  +0.4 vs last month
+                  {analytics.monthlyTrends && analytics.monthlyTrends.length > 1 ? 
+                    'vs last month' : 'No previous data'
+                  }
                 </p>
               </div>
               <Award className="h-8 w-8 text-tech-green" />
@@ -94,7 +108,7 @@ const AnalyticsDashboard = () => {
                 <p className="text-2xl font-bold text-text-primary mt-1">{analytics.timeToHire} days</p>
                 <p className="text-sm mt-1 text-tech-green flex items-center">
                   <TrendingDown size={12} className="mr-1" />
-                  -1.2 days vs target
+                  vs target
                 </p>
               </div>
               <Clock className="h-8 w-8 text-tech-green" />
@@ -110,7 +124,7 @@ const AnalyticsDashboard = () => {
                 <p className="text-2xl font-bold text-text-primary mt-1">{analytics.hireRate}%</p>
                 <p className="text-sm mt-1 text-tech-green flex items-center">
                   <TrendingUp size={12} className="mr-1" />
-                  +3.1% vs last quarter
+                  vs last period
                 </p>
               </div>
               <Briefcase className="h-8 w-8 text-tech-green" />
@@ -273,7 +287,6 @@ const AnalyticsDashboard = () => {
                   <th className="text-left p-3 text-text-secondary">Interviews</th>
                   <th className="text-left p-3 text-text-secondary">Avg Score</th>
                   <th className="text-left p-3 text-text-secondary">Hire Rate</th>
-                  <th className="text-left p-3 text-text-secondary">Satisfaction</th>
                 </tr>
               </thead>
               <tbody>
@@ -281,13 +294,12 @@ const AnalyticsDashboard = () => {
                   <tr key={index} className="border-b border-border-dark/50">
                     <td className="p-3 text-text-primary font-medium">{interviewer.interviewer}</td>
                     <td className="p-3 text-text-secondary">{interviewer.interviews}</td>
-                    <td className="p-3 text-text-primary">{interviewer.avg_score}/10</td>
+                    <td className="p-3 text-text-primary">{interviewer.avg_score.toFixed(1)}/10</td>
                     <td className="p-3">
                       <Badge className="bg-tech-green/20 text-tech-green border-tech-green/30">
-                        {interviewer.hire_rate}%
+                        {interviewer.hire_rate.toFixed(1)}%
                       </Badge>
                     </td>
-                    <td className="p-3 text-text-primary">{interviewer.satisfaction}/5</td>
                   </tr>
                 ))}
               </tbody>
