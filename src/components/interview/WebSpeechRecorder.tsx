@@ -4,13 +4,7 @@ import { Mic, MicOff, Loader2, WifiOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useInterview } from '@/contexts/InterviewContext';
 
-// Extend the Window interface to include webkitSpeechRecognition
-declare global {
-  interface Window {
-    webkitSpeechRecognition: any;
-    SpeechRecognition: any;
-  }
-}
+// No need to redeclare the types since we now have a proper d.ts file
 
 interface WebSpeechRecorderProps {
   speakerName: string;

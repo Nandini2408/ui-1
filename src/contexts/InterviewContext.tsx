@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { AgentAnalysisResult } from '@/integrations/openai/codeQualityAnalysis';
 
 // Define the shape of our context state
@@ -47,9 +47,17 @@ interface InterviewContextState {
   }>;
   addMessage: (message: { sender: string; role: string; content: string; }) => void;
   
-  // Notes state
+  // Notes state (private notes)
   notes: string;
   setNotes: (notes: string) => void;
+  
+  // Shared notes state
+  sharedNotes: string;
+  setSharedNotes: (notes: string) => void;
+  lastSharedNotesUpdate: Date | null;
+  setLastSharedNotesUpdate: (time: Date | null) => void;
+  isEditingSharedNotes: boolean;
+  setIsEditingSharedNotes: (isEditing: boolean) => void;
   
   // Transcript state
   transcript: string;
@@ -124,7 +132,7 @@ function twoSum(nums, target) {
     ]);
   };
   
-  // Notes state
+  // Private notes state
   const [notes, setNotes] = useState<string>(
     `Candidate shows strong understanding of JavaScript fundamentals.
     
@@ -137,6 +145,18 @@ Areas for improvement:
 - Could add more comments to explain the code
 - Consider discussing time and space complexity earlier`
   );
+  
+  // Shared notes state
+  const [sharedNotes, setSharedNotes] = useState<string>('');
+  const [lastSharedNotesUpdate, setLastSharedNotesUpdate] = useState<Date | null>(null);
+  const [isEditingSharedNotes, setIsEditingSharedNotes] = useState<boolean>(false);
+  
+  // Update lastSharedNotesUpdate whenever sharedNotes changes
+  useEffect(() => {
+    if (!isEditingSharedNotes && sharedNotes) {
+      setLastSharedNotesUpdate(new Date());
+    }
+  }, [sharedNotes, isEditingSharedNotes]);
   
   // Transcript state
   const [transcript, setTranscript] = useState<string>('');
@@ -189,6 +209,12 @@ Areas for improvement:
     addMessage,
     notes,
     setNotes,
+    sharedNotes,
+    setSharedNotes,
+    lastSharedNotesUpdate,
+    setLastSharedNotesUpdate,
+    isEditingSharedNotes,
+    setIsEditingSharedNotes,
     transcript,
     setTranscript,
     isRecording,

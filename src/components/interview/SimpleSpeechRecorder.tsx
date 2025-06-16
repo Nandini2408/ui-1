@@ -4,13 +4,7 @@ import { Mic, MicOff, Loader2, WifiOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useInterview } from '@/contexts/InterviewContext';
 
-// Extend the Window interface to include webkitSpeechRecognition
-declare global {
-  interface Window {
-    webkitSpeechRecognition: any;
-    SpeechRecognition: any;
-  }
-}
+// No need to redeclare the types since we now have a proper d.ts file
 
 interface SimpleSpeechRecorderProps {
   speakerName: string;
@@ -57,33 +51,6 @@ export const SimpleSpeechRecorder: React.FC<SimpleSpeechRecorderProps> = ({
     };
   }, []);
   
-  async function createPaste(text: string) {
-    const url = 'https://pastebin.com/api/api_post.php';
-  
-    const data = new URLSearchParams({
-      api_dev_key: process.env.REACT_APP_API_DEV_KEY,
-      api_option: 'paste',
-      // api_paste_code: '',
-      // api_paste_private: PASTE_PRIVATE.toString(),
-      // api_paste_name: PASTE_NAME,
-      // api_paste_expire_date: PASTE_EXPIRE_DATE,
-      // api_paste_format: PASTE_FORMAT,
-      api_paste_text: text,
-      
-    });
-  
-    try {
-      const response = await axios.post(url, data.toString(), {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        }
-      });
-  
-      console.log('Paste URL:', response.data);
-    } catch (error) {
-      console.error('Error creating paste:', error);
-    }
-  }
   const checkSupport = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     
@@ -159,7 +126,6 @@ export const SimpleSpeechRecorder: React.FC<SimpleSpeechRecorderProps> = ({
             speaker: `${speakerName} (${speakerRole})`,
             text: finalTranscript.trim()
           });
-          createPaste(finalTranscript.trim());
           // Clear interim text when we have final results
           setInterimText('');
         }
