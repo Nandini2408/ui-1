@@ -23,7 +23,8 @@ import {
   BarChart3,
   PieChart,
   Code2,
-  Loader2
+  Loader2,
+  FileSearch
 } from 'lucide-react';
 import {
   ChartContainer,
@@ -403,19 +404,19 @@ export const AIAnalysisPanel = forwardRef<AIAnalysisPanelRef, AIAnalysisPanelPro
         <div className="flex-1 flex flex-col">
           <Tabs defaultValue="code-quality" className="flex-1 flex flex-col">
             <TabsList className="bg-dark-primary px-4 py-2 border-b border-border-dark justify-start">
-              <TabsTrigger value="code-quality" className="data-[state=active]:bg-dark-secondary">
+              <TabsTrigger value="code-quality" className="text-white data-[state=active]:bg-dark-secondary">
                 <Code2 className="w-4 h-4 mr-1" />
                 Code Quality
               </TabsTrigger>
-              <TabsTrigger value="overview" className="data-[state=active]:bg-dark-secondary">
+              <TabsTrigger value="overview" className="text-white data-[state=active]:bg-dark-secondary">
                 <BarChart3 className="w-4 h-4 mr-1" />
                 Overview
               </TabsTrigger>
-              <TabsTrigger value="plagiarism" className="data-[state=active]:bg-dark-secondary">
-                <FileText className="w-4 h-4 mr-1" />
+              <TabsTrigger value="plagiarism" className="text-white data-[state=active]:bg-dark-secondary">
+                <FileSearch className="w-4 h-4 mr-1" />
                 Plagiarism
               </TabsTrigger>
-              <TabsTrigger value="behavior" className="data-[state=active]:bg-dark-secondary">
+              <TabsTrigger value="behavior" className="text-white data-[state=active]:bg-dark-secondary">
                 <Users className="w-4 h-4 mr-1" />
                 Behavior
               </TabsTrigger>

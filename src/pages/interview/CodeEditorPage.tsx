@@ -27,15 +27,15 @@ const CodeEditorPage: React.FC = () => {
         <CardContent className="p-0 h-full">
           <Tabs defaultValue="editor" className="h-full flex flex-col">
             <TabsList className="bg-dark-primary px-4 py-2 border-b border-border-dark justify-start">
-              <TabsTrigger value="editor" className="data-[state=active]:bg-dark-secondary">
+              <TabsTrigger value="editor" className="text-white data-[state=active]:bg-dark-secondary">
                 <Code className="w-4 h-4 mr-2" />
                 Editor
               </TabsTrigger>
-              <TabsTrigger value="problem" className="data-[state=active]:bg-dark-secondary">
+              <TabsTrigger value="problem" className="text-white data-[state=active]:bg-dark-secondary">
                 <FileText className="w-4 h-4 mr-2" />
                 Problem
               </TabsTrigger>
-              <TabsTrigger value="output" className="data-[state=active]:bg-dark-secondary">
+              <TabsTrigger value="output" className="text-white data-[state=active]:bg-dark-secondary">
                 <Play className="w-4 h-4 mr-2" />
                 Output
               </TabsTrigger>

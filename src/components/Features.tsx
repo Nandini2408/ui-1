@@ -1,58 +1,75 @@
-
-import { Code, Brain, Video, Users, Clock, BarChart } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Code, Brain, Video, Users, Clock, BarChart, Check } from 'lucide-react';
+import { Card } from '@/components/ui/card';
 
 const Features = () => {
   const features = [
     {
       icon: Code,
       title: "Real-time Code Collaboration",
-      description: "Watch candidates code in real-time with live syntax highlighting, shared debugging, and instant feedback capabilities.",
-      color: "text-blue-400"
+      description: "Watch candidates code in real-time with live syntax highlighting and instant feedback.",
+      color: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+      benefits: ["Syntax highlighting", "Multi-language support", "Instant feedback"]
     },
     {
       icon: Brain,
       title: "AI-Powered Analysis",
-      description: "Advanced AI evaluates code quality, algorithmic thinking, and problem-solving approaches with detailed insights.",
-      color: "text-tech-green"
+      description: "Advanced AI evaluates code quality, algorithmic thinking, and problem-solving approaches.",
+      color: "bg-tech-green/10 text-tech-green border-tech-green/20",
+      benefits: ["Code quality metrics", "Plagiarism detection", "Performance analysis"]
     },
     {
       icon: Video,
       title: "HD Video Interviews",
-      description: "Seamless video integration with screen sharing, recording, and automated transcription for comprehensive evaluation.",
-      color: "text-purple-400"
+      description: "Seamless video integration with screen sharing and automated transcription.",
+      color: "bg-purple-500/10 text-purple-400 border-purple-500/20",
+      benefits: ["Screen sharing", "Auto-transcription", "Recording & playback"]
     },
     {
       icon: Users,
       title: "Team Collaboration",
-      description: "Multiple interviewers can join sessions, share notes, and collaborate on candidate evaluation in real-time.",
-      color: "text-orange-400"
+      description: "Multiple interviewers can join sessions and collaborate on candidate evaluation in real-time.",
+      color: "bg-orange-500/10 text-orange-400 border-orange-500/20",
+      benefits: ["Shared notes", "Multi-interviewer support", "Collaborative scoring"]
     },
     {
       icon: Clock,
       title: "Time Management",
-      description: "Built-in timers, progress tracking, and automated session management keep interviews structured and efficient.",
-      color: "text-yellow-400"
+      description: "Built-in timers and progress tracking keep interviews structured and efficient.",
+      color: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
+      benefits: ["Automated timers", "Progress tracking", "Scheduling tools"]
     },
     {
       icon: BarChart,
       title: "Analytics & Reports",
-      description: "Comprehensive analytics on candidate performance, interview metrics, and team productivity insights.",
-      color: "text-pink-400"
+      description: "Comprehensive analytics on candidate performance and interview metrics.",
+      color: "bg-pink-500/10 text-pink-400 border-pink-500/20",
+      benefits: ["Performance insights", "Comparison tools", "Exportable reports"]
     }
   ];
 
   return (
-    <section id="features" className="bg-dark-secondary py-20">
-      <div className="container mx-auto px-4">
+    <section id="features" className="relative bg-dark-secondary py-24">
+      {/* Background elements */}
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGZpbGw9IiMxMjEyMTIiIGQ9Ik0wIDBoNjB2NjBIMHoiLz48cGF0aCBkPSJNNjAgMEgwdjYwaDYwVjB6TTIgMmg1NnY1NkgyVjJ6IiBmaWxsPSIjMjAyMDIwIiBmaWxsLW9wYWNpdHk9IjAuMDUiLz48L2c+PC9zdmc+')] opacity-5 pointer-events-none" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border-dark to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border-dark to-transparent" />
+      
+      <div className="container mx-auto px-4 relative z-10">
         {/* Section Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-3xl lg:text-4xl font-bold text-text-primary mb-4">
-            Everything You Need for
-            <span className="text-tech-green"> Technical Interviews</span>
+        <div className="max-w-3xl mx-auto text-center mb-16">
+          <div className="inline-flex items-center rounded-full bg-dark-primary border border-border-dark px-3 py-1 text-sm text-tech-green mb-4">
+            <span className="flex h-2 w-2 rounded-full bg-tech-green mr-2"></span>
+            Powerful Features
+          </div>
+          
+          <h2 className="text-4xl lg:text-5xl font-bold text-text-primary mb-6">
+            Everything you need for
+            <span className="text-tech-green"> technical interviews</span>
           </h2>
-          <p className="text-xl text-text-secondary max-w-2xl mx-auto">
-            Powerful tools designed to help you identify top talent efficiently and effectively.
+          
+          <p className="text-xl text-text-secondary">
+            Our platform streamlines the technical interview process from start to finish,
+            helping you identify top talent efficiently and effectively.
           </p>
         </div>
 
@@ -61,32 +78,51 @@ const Features = () => {
           {features.map((feature, index) => (
             <Card 
               key={index} 
-              className="bg-dark-primary border-border-dark hover:border-tech-green/50 transition-all duration-300 group hover:shadow-lg hover:shadow-tech-green/10"
+              className="bg-dark-primary border-border-dark hover:border-tech-green/30 transition-all duration-300 group overflow-hidden relative"
             >
-              <CardContent className="p-6">
-                <div className="flex items-start space-x-4">
-                  <div className={`p-3 bg-dark-secondary rounded-lg ${feature.color} group-hover:scale-110 transition-transform duration-300`}>
-                    <feature.icon size={24} />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-text-primary mb-2 group-hover:text-tech-green transition-colors">
-                      {feature.title}
-                    </h3>
-                    <p className="text-text-secondary leading-relaxed">
-                      {feature.description}
-                    </p>
-                  </div>
+              {/* Gradient hover effect */}
+              <div className="absolute inset-0 bg-gradient-to-br from-tech-green/0 to-tech-green/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              
+              {/* Card content */}
+              <div className="p-8 relative z-10">
+                {/* Icon */}
+                <div className={`p-3 rounded-lg ${feature.color} w-14 h-14 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                  <feature.icon size={24} />
                 </div>
-              </CardContent>
+                
+                {/* Title */}
+                <h3 className="text-xl font-semibold text-text-primary mb-3 group-hover:text-tech-green transition-colors">
+                  {feature.title}
+                </h3>
+                
+                {/* Description */}
+                <p className="text-text-secondary leading-relaxed mb-6">
+                  {feature.description}
+                </p>
+                
+                {/* Benefits list */}
+                <ul className="space-y-2">
+                  {feature.benefits.map((benefit, i) => (
+                    <li key={i} className="flex items-center text-sm text-text-secondary">
+                      <Check size={16} className="text-tech-green mr-2 flex-shrink-0" />
+                      <span>{benefit}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </Card>
           ))}
         </div>
 
         {/* Bottom CTA */}
-        <div className="text-center mt-16">
-          <div className="inline-flex items-center gap-4 p-6 bg-dark-primary border border-border-dark rounded-lg">
-            <div className="text-tech-green font-mono text-sm">$ npm install success</div>
-            <div className="text-text-secondary">Ready to streamline your hiring process?</div>
+        <div className="mt-20 text-center">
+          <div className="inline-block rounded-lg bg-dark-primary border border-border-dark p-8 shadow-xl shadow-tech-green/5">
+            <h3 className="text-2xl font-semibold text-text-primary mb-4">Ready to transform your hiring process?</h3>
+            <p className="text-text-secondary mb-6">Join hundreds of companies already using our platform.</p>
+            <div className="inline-flex items-center gap-2 bg-dark-secondary px-4 py-2 rounded-md border border-border-dark">
+              <span className="text-tech-green font-mono">$</span>
+              <span className="text-text-secondary">npm install interview-success</span>
+            </div>
           </div>
         </div>
       </div>

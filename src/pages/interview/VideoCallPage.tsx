@@ -115,11 +115,11 @@ const VideoCallPage: React.FC = () => {
         <CardContent className="p-0 h-full">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
             <TabsList className="bg-dark-primary px-4 py-2 border-b border-border-dark justify-start">
-              <TabsTrigger value="video" className="data-[state=active]:bg-dark-secondary">
+              <TabsTrigger value="video" className="text-white data-[state=active]:bg-dark-secondary">
                 <Video className="w-4 h-4 mr-2" />
                 Video Call
               </TabsTrigger>
-              <TabsTrigger value="transcript" className="data-[state=active]:bg-dark-secondary">
+              <TabsTrigger value="transcript" className="text-white data-[state=active]:bg-dark-secondary">
                 <FileText className="w-4 h-4 mr-2" />
                 Transcript {isRecording && <span className="ml-2 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>}
                 {newTranscripts > 0 && activeTab !== 'transcript' && (

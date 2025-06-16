@@ -3,9 +3,10 @@ import { AIAnalysisPanel, AIAnalysisPanelRef } from '@/components/interview/AIAn
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Brain, RefreshCw, Loader2, FileText } from 'lucide-react';
+import { Brain, RefreshCw, Loader2, FileText, Fingerprint } from 'lucide-react';
 import { useInterview } from '@/contexts/InterviewContext';
 import CandidateSummaryReport from '@/components/interview/CandidateSummaryReport';
+import PlagiarismAnalysis from '@/components/interview/PlagiarismAnalysis';
 
 const AIAnalysisPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('code-quality');
@@ -79,11 +80,15 @@ const AIAnalysisPage: React.FC = () => {
         <CardContent className="p-0 h-full">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full">
             <TabsList className="bg-dark-primary px-4 py-2 border-b border-border-dark justify-start">
-              <TabsTrigger value="code-quality" className="data-[state=active]:bg-dark-secondary">
+              <TabsTrigger value="code-quality" className="text-white data-[state=active]:bg-dark-secondary">
                 <Brain className="w-4 h-4 mr-2" />
                 Code Quality
               </TabsTrigger>
-              <TabsTrigger value="candidate-report" className="data-[state=active]:bg-dark-secondary">
+              <TabsTrigger value="plagiarism" className="text-white data-[state=active]:bg-dark-secondary">
+                <Fingerprint className="w-4 h-4 mr-2" />
+                Plagiarism Check
+              </TabsTrigger>
+              <TabsTrigger value="candidate-report" className="text-white data-[state=active]:bg-dark-secondary">
                 <FileText className="w-4 h-4 mr-2" />
                 Candidate Report
               </TabsTrigger>
@@ -94,6 +99,14 @@ const AIAnalysisPage: React.FC = () => {
                 ref={aiAnalysisPanelRef}
                 initialCode={code}
                 initialLanguage={language}
+              />
+            </TabsContent>
+            
+            <TabsContent value="plagiarism" className="h-[calc(100%-45px)] p-0 m-0">
+              <PlagiarismAnalysis 
+                code={code}
+                language={language}
+                problemStatement={useInterview().problemStatement}
               />
             </TabsContent>
             

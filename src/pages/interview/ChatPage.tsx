@@ -22,11 +22,11 @@ const ChatPage: React.FC = () => {
         <CardContent className="p-0 h-full">
           <Tabs defaultValue="chat" className="h-full flex flex-col">
             <TabsList className="bg-dark-primary px-4 py-2 border-b border-border-dark justify-start">
-              <TabsTrigger value="chat" className="data-[state=active]:bg-dark-secondary">
+              <TabsTrigger value="chat" className="text-white data-[state=active]:bg-dark-secondary">
                 <MessageSquare className="w-4 h-4 mr-2" />
                 Chat
               </TabsTrigger>
-              <TabsTrigger value="notes" className="data-[state=active]:bg-dark-secondary">
+              <TabsTrigger value="notes" className="text-white data-[state=active]:bg-dark-secondary">
                 <FileText className="w-4 h-4 mr-2" />
                 Notes
               </TabsTrigger>

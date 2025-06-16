@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { AgentAnalysisResult } from '@/integrations/openai/codeQualityAnalysis';
+import { PlagiarismAnalysisResult } from '@/integrations/openai/plagiarismAnalysis';
 
 // Define the shape of our context state
 interface InterviewContextState {
@@ -36,6 +37,14 @@ interface InterviewContextState {
   setIsAnalyzing: (isAnalyzing: boolean) => void;
   lastAnalysisTime: Date | null;
   setLastAnalysisTime: (time: Date | null) => void;
+  
+  // Plagiarism analysis state
+  plagiarismResults: PlagiarismAnalysisResult | null;
+  setPlagiarismResults: (results: PlagiarismAnalysisResult | null) => void;
+  isPlagiarismAnalyzing: boolean;
+  setIsPlagiarismAnalyzing: (isAnalyzing: boolean) => void;
+  lastPlagiarismAnalysisTime: Date | null;
+  setLastPlagiarismAnalysisTime: (time: Date | null) => void;
   
   // Chat state
   messages: Array<{
@@ -102,6 +111,11 @@ function twoSum(nums, target) {
   const [analysisResults, setAnalysisResults] = useState<InterviewContextState['analysisResults']>(null);
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
   const [lastAnalysisTime, setLastAnalysisTime] = useState<Date | null>(null);
+  
+  // Plagiarism analysis state
+  const [plagiarismResults, setPlagiarismResults] = useState<PlagiarismAnalysisResult | null>(null);
+  const [isPlagiarismAnalyzing, setIsPlagiarismAnalyzing] = useState<boolean>(false);
+  const [lastPlagiarismAnalysisTime, setLastPlagiarismAnalysisTime] = useState<Date | null>(null);
   
   // Chat state
   const [messages, setMessages] = useState([
@@ -205,6 +219,12 @@ Areas for improvement:
     setIsAnalyzing,
     lastAnalysisTime,
     setLastAnalysisTime,
+    plagiarismResults,
+    setPlagiarismResults,
+    isPlagiarismAnalyzing,
+    setIsPlagiarismAnalyzing,
+    lastPlagiarismAnalysisTime,
+    setLastPlagiarismAnalysisTime,
     messages,
     addMessage,
     notes,

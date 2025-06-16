@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -347,7 +346,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
     return (
       <Select value={selectedLanguage} onValueChange={onLanguageChange}>
         <SelectTrigger className="w-40 bg-dark-secondary border-border-dark text-white h-8">
-          <SelectValue />
+          <SelectValue className="text-white" />
         </SelectTrigger>
         <SelectContent className="bg-dark-secondary border-border-dark">
           {SUPPORTED_LANGUAGES.map((language) => (

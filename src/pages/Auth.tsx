@@ -55,7 +55,7 @@ const Auth = () => {
       <div className="w-full max-w-md">
         <div className="flex items-center gap-2 mb-8 justify-center">
           <Code className="h-8 w-8 text-tech-green" />
-          <span className="text-2xl font-bold text-text-primary">HackerRank Clone</span>
+          <span className="text-2xl font-bold text-text-primary">Code Interview</span>
         </div>
 
         <Card className="bg-dark-secondary border-border-dark">

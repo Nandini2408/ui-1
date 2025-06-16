@@ -137,9 +137,10 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
       try {
         console.log('Attempting to join room:', roomName, 'as:', identity);
         
-        // Get token from server
-        console.log('Requesting token from:', API_ENDPOINTS.TWILIO_TOKEN);
-        const response = await axios.post(API_ENDPOINTS.TWILIO_TOKEN, {
+        // Get token from server - hardcoded to use remote URL
+        const remoteTokenUrl = 'https://server-faby.onrender.com/api/twilio/token';
+        console.log('Requesting token from hardcoded remote URL:', remoteTokenUrl);
+        const response = await axios.post(remoteTokenUrl, {
           identity,
           roomName
         });

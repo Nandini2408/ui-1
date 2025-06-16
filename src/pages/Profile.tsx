@@ -589,7 +589,7 @@ const Profile = () => {
                             onValueChange={(value) => handleSettingsChange('language', value)}
                           >
                             <SelectTrigger className="w-32 bg-dark-primary border-border-dark">
-                              <SelectValue placeholder="Select language" />
+                              <SelectValue placeholder="Select language" className="text-white" />
                             </SelectTrigger>
                             <SelectContent className="bg-dark-primary border-border-dark">
                               <SelectItem value="en">English</SelectItem>

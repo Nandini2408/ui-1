@@ -276,7 +276,7 @@ vector<int> twoSum(vector<int>& nums, int target) {
             onValueChange={setContextLanguage}
           >
             <SelectTrigger className="w-[180px] bg-dark-primary border-border-dark">
-              <SelectValue placeholder="Select Language" />
+              <SelectValue placeholder="Select Language" className="text-white" />
             </SelectTrigger>
             <SelectContent className="bg-dark-primary border-border-dark">
               {languages.map((lang) => (

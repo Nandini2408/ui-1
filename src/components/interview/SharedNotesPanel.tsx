@@ -133,8 +133,8 @@ export function SharedNotesPanel({ roomId }: SharedNotesPanelProps) {
       <CardContent className="flex-grow pb-2">
         <Tabs defaultValue="private" value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
           <TabsList className="mb-2">
-            <TabsTrigger value="private">Private Notes</TabsTrigger>
-            <TabsTrigger value="shared" className="flex items-center gap-1">
+            <TabsTrigger value="private" className="text-white">Private Notes</TabsTrigger>
+            <TabsTrigger value="shared" className="text-white flex items-center gap-1">
               <Share2 className="h-4 w-4" />
               Shared Notes
             </TabsTrigger>

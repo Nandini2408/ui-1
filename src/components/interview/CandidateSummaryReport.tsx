@@ -15,7 +15,9 @@ import {
   CheckCircle,
   XCircle,
   Download,
-  Lightbulb
+  Lightbulb,
+  BarChart3,
+  Code2
 } from 'lucide-react';
 import { generateCandidateReport, CandidateReport } from '@/integrations/openai/candidateReportSummarizer';
 import { useInterview } from '@/contexts/InterviewContext';
@@ -131,20 +133,20 @@ export const CandidateSummaryReport: React.FC = () => {
           <div className="h-full flex flex-col">
             <Tabs defaultValue="overall" value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
               <TabsList className="bg-dark-primary px-4 py-2 border-b border-border-dark justify-start">
-                <TabsTrigger value="overall" className="data-[state=active]:bg-dark-secondary">
-                  <FileText className="w-4 h-4 mr-2" />
+                <TabsTrigger value="overall" className="text-white data-[state=active]:bg-dark-secondary">
+                  <BarChart3 className="w-4 h-4 mr-2" />
                   Overall
                 </TabsTrigger>
-                <TabsTrigger value="technical" className="data-[state=active]:bg-dark-secondary">
-                  <Code className="w-4 h-4 mr-2" />
+                <TabsTrigger value="technical" className="text-white data-[state=active]:bg-dark-secondary">
+                  <Code2 className="w-4 h-4 mr-2" />
                   Technical
                 </TabsTrigger>
-                <TabsTrigger value="communication" className="data-[state=active]:bg-dark-secondary">
+                <TabsTrigger value="communication" className="text-white data-[state=active]:bg-dark-secondary">
                   <MessageSquare className="w-4 h-4 mr-2" />
                   Communication
                 </TabsTrigger>
-                <TabsTrigger value="feedback" className="data-[state=active]:bg-dark-secondary">
-                  <Lightbulb className="w-4 h-4 mr-2" />
+                <TabsTrigger value="feedback" className="text-white data-[state=active]:bg-dark-secondary">
+                  <FileText className="w-4 h-4 mr-2" />
                   Feedback
                 </TabsTrigger>
               </TabsList>

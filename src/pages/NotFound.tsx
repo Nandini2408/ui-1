@@ -77,10 +77,10 @@ const NotFound = () => {
             <p className="text-text-secondary text-xs">
               If you believe this is an error, please contact support at{" "}
               <a 
-                href="mailto:support@hackerrank.com" 
+                href="mailto:support@codeinterview.com" 
                 className="text-tech-green hover:underline"
               >
-                support@hackerrank.com
+                support@codeinterview.com
               </a>
             </p>
           </div>

@@ -289,13 +289,13 @@ const CodeQualityAnalysis: React.FC<CodeQualityAnalysisProps> = ({
       <div className="flex-1 overflow-hidden">
         <Tabs defaultValue="summary" className="h-full flex flex-col">
           <TabsList className="bg-dark-primary px-4 py-2 border-b border-border-dark justify-start">
-            <TabsTrigger value="summary">Summary</TabsTrigger>
-            <TabsTrigger value="correctness">Correctness</TabsTrigger>
-            <TabsTrigger value="complexity">Complexity</TabsTrigger>
-            <TabsTrigger value="edge-cases">Edge Cases</TabsTrigger>
-            <TabsTrigger value="performance">Performance</TabsTrigger>
-            <TabsTrigger value="security">Security</TabsTrigger>
-            <TabsTrigger value="style">Style</TabsTrigger>
+            <TabsTrigger value="summary" className="text-white">Summary</TabsTrigger>
+            <TabsTrigger value="correctness" className="text-white">Correctness</TabsTrigger>
+            <TabsTrigger value="complexity" className="text-white">Complexity</TabsTrigger>
+            <TabsTrigger value="edge-cases" className="text-white">Edge Cases</TabsTrigger>
+            <TabsTrigger value="performance" className="text-white">Performance</TabsTrigger>
+            <TabsTrigger value="security" className="text-white">Security</TabsTrigger>
+            <TabsTrigger value="style" className="text-white">Style</TabsTrigger>
           </TabsList>
           
           <div className="flex-1 overflow-hidden">
