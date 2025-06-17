@@ -23,10 +23,10 @@ const PerformanceAnalytics = () => {
   const [performanceData, setPerformanceData] = useState<PerformanceData[]>([]);
   const [skillMetrics, setSkillMetrics] = useState<SkillMetric[]>([]);
   const [overallMetrics, setOverallMetrics] = useState([
-    { label: 'Interview Success Rate', value: '0%', icon: Target, color: 'text-tech-green' },
+    { label: 'Interview Success Rate', value: '0%', icon: Target, color: 'text-emerald-green' },
     { label: 'Avg. Performance Score', value: '0', icon: Award, color: 'text-blue-500' },
     { label: 'Better than Peers', value: '0%', icon: Users, color: 'text-purple-500' },
-    { label: 'Improvement Rate', value: '0%', icon: TrendingUp, color: 'text-tech-green' }
+    { label: 'Improvement Rate', value: '0%', icon: TrendingUp, color: 'text-emerald-green' }
   ]);
   const [loading, setLoading] = useState(true);
 
@@ -172,10 +172,10 @@ const PerformanceAnalytics = () => {
         }
 
         setOverallMetrics([
-          { label: 'Interview Success Rate', value: `${successRate}%`, icon: Target, color: 'text-tech-green' },
+          { label: 'Interview Success Rate', value: `${successRate}%`, icon: Target, color: 'text-emerald-green' },
           { label: 'Avg. Performance Score', value: `${Math.round(avgScore)}`, icon: Award, color: 'text-blue-500' },
           { label: 'Better than Peers', value: `${betterThanPeers}%`, icon: Users, color: 'text-purple-500' },
-          { label: 'Improvement Rate', value: `${improvementRate > 0 ? '+' : ''}${improvementRate}%`, icon: TrendingUp, color: 'text-tech-green' }
+          { label: 'Improvement Rate', value: `${improvementRate > 0 ? '+' : ''}${improvementRate}%`, icon: TrendingUp, color: 'text-emerald-green' }
         ]);
       }
     } catch (error) {
@@ -199,27 +199,27 @@ const PerformanceAnalytics = () => {
   };
 
   return (
-    <Card className="bg-dark-secondary border-border-dark">
-      <CardHeader>
-        <CardTitle className="text-lg text-text-primary flex items-center gap-2">
-          <TrendingUp className="h-5 w-5 text-tech-green" />
+    <Card className="bg-gray-800 border-none shadow-md rounded-xl overflow-hidden">
+      <CardHeader className="border-b border-gray-700 bg-gray-800/80">
+        <CardTitle className="text-lg text-white flex items-center gap-2">
+          <TrendingUp className="h-5 w-5 text-emerald-green" />
           Performance Analytics
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-6 p-6">
         {loading ? (
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-8 w-8 text-tech-green animate-spin" />
+            <Loader2 className="h-8 w-8 text-emerald-green animate-spin" />
           </div>
         ) : (
           <>
             {/* Overall Metrics */}
             <div className="grid grid-cols-2 gap-4">
               {overallMetrics.map((metric, index) => (
-                <div key={index} className="bg-dark-primary p-3 rounded-lg border border-border-dark">
+                <div key={index} className="bg-gray-700 p-3 rounded-lg border border-gray-600">
                   <div className="flex items-center gap-2 mb-2">
                     <metric.icon className={`h-4 w-4 ${metric.color}`} />
-                    <span className="text-xs text-text-secondary">{metric.label}</span>
+                    <span className="text-xs text-gray-300">{metric.label}</span>
                   </div>
                   <p className={`text-xl font-bold ${metric.color}`}>{metric.value}</p>
                 </div>
@@ -227,23 +227,23 @@ const PerformanceAnalytics = () => {
             </div>
 
             {/* Performance Trend */}
-            <div className="bg-dark-primary p-4 rounded-lg border border-border-dark">
-              <h4 className="text-sm font-semibold text-text-primary mb-3">Performance Trend</h4>
+            <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+              <h4 className="text-sm font-semibold text-white mb-3">Performance Trend</h4>
               <div className="h-32">
                 <ChartContainer config={{
-                  score: { label: "Score", color: "hsl(var(--tech-green))" }
+                  score: { label: "Score", color: "hsl(var(--emerald-green))" }
                 }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={performanceData}>
-                      <XAxis dataKey="month" axisLine={false} tickLine={false} className="text-xs" />
+                      <XAxis dataKey="month" axisLine={false} tickLine={false} className="text-xs text-gray-400" />
                       <YAxis hide />
                       <ChartTooltip content={<ChartTooltipContent />} />
                       <Line 
                         type="monotone" 
                         dataKey="score" 
-                        stroke="#39d353" 
+                        stroke="#2ecc71" 
                         strokeWidth={2}
-                        dot={{ fill: '#39d353', strokeWidth: 2, r: 4 }}
+                        dot={{ fill: '#2ecc71', strokeWidth: 2, r: 4 }}
                       />
                     </LineChart>
                   </ResponsiveContainer>
@@ -251,19 +251,24 @@ const PerformanceAnalytics = () => {
               </div>
             </div>
 
-            {/* Skill Breakdown */}
-            <div className="space-y-3">
-              <h4 className="text-sm font-semibold text-text-primary">Skill Performance</h4>
-              {skillMetrics.map((skill, index) => (
+            {/* Skill Metrics */}
+            <div className="space-y-4">
+              <h4 className="text-sm font-semibold text-white">Skill Breakdown</h4>
+              {skillMetrics.map((metric, index) => (
                 <div key={index} className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-text-secondary">{skill.skill}</span>
+                    <span className="text-sm text-gray-300">{metric.skill}</span>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-tech-green">{skill.trend}</span>
-                      <span className="text-sm font-semibold text-text-primary">{skill.score}%</span>
+                      <span className={`text-xs ${metric.trend.startsWith('+') ? 'text-emerald-green' : 'text-red-500'}`}>
+                        {metric.trend}
+                      </span>
+                      <span className="text-sm font-medium text-gray-300">{metric.score}%</span>
                     </div>
                   </div>
-                  <Progress value={skill.score} className="h-2" />
+                  <Progress 
+                    value={metric.score} 
+                    className="h-2 bg-gray-700 [&>div]:bg-emerald-green" 
+                  />
                 </div>
               ))}
             </div>

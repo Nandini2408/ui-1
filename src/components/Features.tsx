@@ -1,4 +1,4 @@
-import { Code, Brain, Video, Users, Clock, BarChart, Check } from 'lucide-react';
+import { Code, Brain, Video, Users, Clock, BarChart, Check, Leaf } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 
 const Features = () => {
@@ -14,7 +14,7 @@ const Features = () => {
       icon: Brain,
       title: "AI-Powered Analysis",
       description: "Advanced AI evaluates code quality, algorithmic thinking, and problem-solving approaches.",
-      color: "bg-tech-green/10 text-tech-green border-tech-green/20",
+      color: "bg-emerald-green/10 text-emerald-green border-emerald-green/20",
       benefits: ["Code quality metrics", "Plagiarism detection", "Performance analysis"]
     },
     {
@@ -57,14 +57,14 @@ const Features = () => {
       <div className="container mx-auto px-4 relative z-10">
         {/* Section Header */}
         <div className="max-w-3xl mx-auto text-center mb-16">
-          <div className="inline-flex items-center rounded-full bg-dark-primary border border-border-dark px-3 py-1 text-sm text-tech-green mb-4">
-            <span className="flex h-2 w-2 rounded-full bg-tech-green mr-2"></span>
+          <div className="inline-flex items-center rounded-full bg-dark-primary border border-border-dark px-3 py-1 text-sm text-emerald-green mb-4">
+            <span className="flex h-2 w-2 rounded-full bg-emerald-green mr-2 animate-pulse"></span>
             Powerful Features
           </div>
           
-          <h2 className="text-4xl lg:text-5xl font-bold text-text-primary mb-6">
+          <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
             Everything you need for
-            <span className="text-tech-green"> technical interviews</span>
+            <span className="bg-green-gradient text-transparent bg-clip-text"> technical interviews</span>
           </h2>
           
           <p className="text-xl text-text-secondary">
@@ -78,10 +78,10 @@ const Features = () => {
           {features.map((feature, index) => (
             <Card 
               key={index} 
-              className="bg-dark-primary border-border-dark hover:border-tech-green/30 transition-all duration-300 group overflow-hidden relative"
+              className="bg-dark-primary border-border-dark hover:border-emerald-green/30 transition-all duration-300 group overflow-hidden relative"
             >
               {/* Gradient hover effect */}
-              <div className="absolute inset-0 bg-gradient-to-br from-tech-green/0 to-tech-green/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-green/0 to-emerald-green/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               
               {/* Card content */}
               <div className="p-8 relative z-10">
@@ -91,7 +91,7 @@ const Features = () => {
                 </div>
                 
                 {/* Title */}
-                <h3 className="text-xl font-semibold text-text-primary mb-3 group-hover:text-tech-green transition-colors">
+                <h3 className="text-xl font-semibold text-white mb-3 group-hover:text-emerald-green transition-colors">
                   {feature.title}
                 </h3>
                 
@@ -104,7 +104,7 @@ const Features = () => {
                 <ul className="space-y-2">
                   {feature.benefits.map((benefit, i) => (
                     <li key={i} className="flex items-center text-sm text-text-secondary">
-                      <Check size={16} className="text-tech-green mr-2 flex-shrink-0" />
+                      <Check size={16} className="text-emerald-green mr-2 flex-shrink-0" />
                       <span>{benefit}</span>
                     </li>
                   ))}
@@ -116,12 +116,12 @@ const Features = () => {
 
         {/* Bottom CTA */}
         <div className="mt-20 text-center">
-          <div className="inline-block rounded-lg bg-dark-primary border border-border-dark p-8 shadow-xl shadow-tech-green/5">
-            <h3 className="text-2xl font-semibold text-text-primary mb-4">Ready to transform your hiring process?</h3>
+          <div className="inline-block rounded-xl bg-dark-primary border border-border-dark p-8 shadow-xl shadow-emerald-green/5">
+            <h3 className="text-2xl font-semibold text-white mb-4">Ready to transform your hiring process?</h3>
             <p className="text-text-secondary mb-6">Join hundreds of companies already using our platform.</p>
             <div className="inline-flex items-center gap-2 bg-dark-secondary px-4 py-2 rounded-md border border-border-dark">
-              <span className="text-tech-green font-mono">$</span>
-              <span className="text-text-secondary">npm install interview-success</span>
+              <span className="text-emerald-green font-mono">$</span>
+              <span className="text-text-secondary">npm install codegreen-success</span>
             </div>
           </div>
         </div>

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -57,20 +56,20 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-dark-primary text-text-primary p-6">
+    <div className="min-h-screen bg-gray-900 text-white p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-text-primary">Admin Dashboard</h1>
-            <p className="text-text-secondary mt-2">Manage your CodeInterview Pro platform</p>
+            <h1 className="text-3xl font-bold text-white">Admin Dashboard</h1>
+            <p className="text-gray-300 mt-2">Manage your CodeInterview Pro platform</p>
           </div>
           <div className="flex gap-3">
-            <Button variant="outline" className="border-border-dark text-text-secondary hover:text-text-primary">
+            <Button variant="outline" className="border-gray-700 text-gray-300 hover:text-white">
               <FileText size={16} className="mr-2" />
               Export Report
             </Button>
-            <Button className="bg-tech-green hover:bg-tech-green/90 text-dark-primary">
+            <Button className="bg-emerald-green hover:bg-emerald-green/90 text-gray-900">
               <Settings size={16} className="mr-2" />
               System Settings
             </Button>
@@ -82,20 +81,20 @@ const AdminDashboard = () => {
           {adminStats.map((stat, index) => {
             const Icon = stat.icon;
             return (
-              <Card key={index} className="bg-dark-secondary border-border-dark">
+              <Card key={index} className="bg-gray-800 border-gray-700">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-text-secondary">{stat.title}</p>
-                      <p className="text-2xl font-bold text-text-primary mt-1">{stat.value}</p>
+                      <p className="text-sm text-gray-300">{stat.title}</p>
+                      <p className="text-2xl font-bold text-white mt-1">{stat.value}</p>
                       <p className={`text-sm mt-1 ${
-                        stat.trend === 'up' ? 'text-tech-green' : 
+                        stat.trend === 'up' ? 'text-emerald-green' : 
                         stat.trend === 'down' ? 'text-red-400' : 'text-blue-400'
                       }`}>
                         {stat.change}
                       </p>
                     </div>
-                    <Icon className="h-8 w-8 text-tech-green" />
+                    <Icon className="h-8 w-8 text-emerald-green" />
                   </div>
                 </CardContent>
               </Card>
@@ -105,28 +104,28 @@ const AdminDashboard = () => {
 
         {/* Main Dashboard Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="bg-dark-secondary border-border-dark">
-            <TabsTrigger value="overview" className="data-[state=active]:bg-tech-green data-[state=active]:text-dark-primary">
+          <TabsList className="bg-gray-800 border-gray-700">
+            <TabsTrigger value="overview" className="data-[state=active]:bg-emerald-green data-[state=active]:text-gray-900">
               <BarChart3 size={16} className="mr-2" />
               Overview
             </TabsTrigger>
-            <TabsTrigger value="users" className="data-[state=active]:bg-tech-green data-[state=active]:text-dark-primary">
+            <TabsTrigger value="users" className="data-[state=active]:bg-emerald-green data-[state=active]:text-gray-900">
               <Users size={16} className="mr-2" />
               Users
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="data-[state=active]:bg-tech-green data-[state=active]:text-dark-primary">
+            <TabsTrigger value="analytics" className="data-[state=active]:bg-emerald-green data-[state=active]:text-gray-900">
               <Activity size={16} className="mr-2" />
               Analytics
             </TabsTrigger>
-            <TabsTrigger value="config" className="data-[state=active]:bg-tech-green data-[state=active]:text-dark-primary">
+            <TabsTrigger value="config" className="data-[state=active]:bg-emerald-green data-[state=active]:text-gray-900">
               <Settings size={16} className="mr-2" />
               Configuration
             </TabsTrigger>
-            <TabsTrigger value="reports" className="data-[state=active]:bg-tech-green data-[state=active]:text-dark-primary">
+            <TabsTrigger value="reports" className="data-[state=active]:bg-emerald-green data-[state=active]:text-gray-900">
               <FileText size={16} className="mr-2" />
               Reports
             </TabsTrigger>
-            <TabsTrigger value="security" className="data-[state=active]:bg-tech-green data-[state=active]:text-dark-primary">
+            <TabsTrigger value="security" className="data-[state=active]:bg-emerald-green data-[state=active]:text-gray-900">
               <Shield size={16} className="mr-2" />
               Security
             </TabsTrigger>

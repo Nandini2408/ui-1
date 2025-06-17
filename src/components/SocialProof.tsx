@@ -109,13 +109,13 @@ const SocialProof = () => {
       <div className="container mx-auto px-4 relative z-10">
         {/* Section header */}
         <div className="max-w-3xl mx-auto text-center mb-20">
-          <div className="inline-flex items-center rounded-full bg-dark-secondary border border-border-dark px-3 py-1 text-sm text-tech-green mb-4">
-            <span className="flex h-2 w-2 rounded-full bg-tech-green mr-2"></span>
+          <div className="inline-flex items-center rounded-full bg-dark-secondary border border-border-dark px-3 py-1 text-sm text-emerald-green mb-4">
+            <span className="flex h-2 w-2 rounded-full bg-emerald-green mr-2 animate-pulse"></span>
             Trusted by Innovators
           </div>
           
-          <h2 className="text-4xl font-bold text-text-primary mb-6">
-            Join <span className="text-tech-green">industry leaders</span> who trust our platform
+          <h2 className="text-4xl font-bold text-white mb-6">
+            Join <span className="bg-green-gradient text-transparent bg-clip-text">industry leaders</span> who trust our platform
           </h2>
           
           <p className="text-xl text-text-secondary">
@@ -128,11 +128,11 @@ const SocialProof = () => {
           {companies.map((company, index) => (
             <div 
               key={index} 
-              className="group relative rounded-lg border border-border-dark bg-dark-secondary p-6 flex items-center justify-center transition-all duration-300 hover:border-tech-green/30 hover:shadow-lg hover:shadow-tech-green/5"
+              className="group relative rounded-xl border border-border-dark bg-dark-secondary p-6 flex items-center justify-center transition-all duration-300 hover:border-emerald-green/30 hover:shadow-lg hover:shadow-emerald-green/5"
             >
-              <div className={`absolute inset-0 ${company.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300 rounded-lg`}></div>
+              <div className={`absolute inset-0 ${company.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300 rounded-xl`}></div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-text-primary group-hover:text-tech-green transition-colors duration-300">{company.logo}</div>
+                <div className="text-2xl font-bold text-white group-hover:text-emerald-green transition-colors duration-300">{company.logo}</div>
                 <div className="text-xs text-text-secondary mt-2 opacity-70 group-hover:opacity-100 transition-opacity">{company.name}</div>
               </div>
             </div>
@@ -144,13 +144,13 @@ const SocialProof = () => {
           {stats.map((stat, index) => (
             <div key={index} className="relative group">
               {/* Background glow on hover */}
-              <div className="absolute inset-0 bg-tech-green/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg blur-xl"></div>
+              <div className="absolute inset-0 bg-emerald-green/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl blur-xl"></div>
               
-              <div className="relative bg-dark-secondary border border-border-dark rounded-lg p-6 text-center group-hover:border-tech-green/30 transition-colors duration-300">
-                <div className="text-4xl lg:text-5xl font-bold text-tech-green mb-2">
+              <div className="relative bg-dark-secondary border border-border-dark rounded-xl p-6 text-center group-hover:border-emerald-green/30 transition-colors duration-300">
+                <div className="text-4xl lg:text-5xl font-bold bg-green-gradient text-transparent bg-clip-text mb-2">
                   {animatedStats[index].toLocaleString()}{stat.suffix}
                 </div>
-                <div className="text-text-secondary group-hover:text-text-primary transition-colors">
+                <div className="text-text-secondary group-hover:text-white transition-colors">
                   {stat.label}
                 </div>
               </div>
@@ -160,9 +160,9 @@ const SocialProof = () => {
         
         {/* Testimonials - modern carousel */}
         <div className="max-w-4xl mx-auto">
-          <div className="relative bg-dark-secondary border border-border-dark rounded-lg p-8 md:p-12 shadow-xl shadow-tech-green/5">
+          <div className="relative bg-dark-secondary border border-border-dark rounded-xl p-8 md:p-12 shadow-xl shadow-emerald-green/5">
             {/* Quote icon */}
-            <div className="absolute top-6 left-6 text-tech-green/20">
+            <div className="absolute top-6 left-6 text-emerald-green/20">
               <Quote size={48} />
             </div>
             
@@ -182,22 +182,22 @@ const SocialProof = () => {
                         <Star 
                           key={i} 
                           size={20} 
-                          className={i < testimonial.rating ? "text-tech-green fill-tech-green" : "text-text-secondary"} 
+                          className={i < testimonial.rating ? "text-emerald-green fill-emerald-green" : "text-gray-400"} 
                         />
                       ))}
                     </div>
                     
                     {/* Quote */}
-                    <blockquote className="text-xl md:text-2xl text-text-primary mb-8 italic">
+                    <blockquote className="text-xl md:text-2xl text-white mb-8 italic">
                       "{testimonial.quote}"
                     </blockquote>
                     
                     {/* Author info */}
                     <div className="flex flex-col items-center">
-                      <div className="w-14 h-14 bg-tech-green rounded-full flex items-center justify-center mb-3">
-                        <span className="text-dark-primary font-bold text-lg">{testimonial.avatar}</span>
+                      <div className="w-14 h-14 bg-green-gradient rounded-full flex items-center justify-center mb-3">
+                        <span className="text-white font-bold text-lg">{testimonial.avatar}</span>
                       </div>
-                      <div className="text-lg font-semibold text-text-primary">{testimonial.author}</div>
+                      <div className="text-lg font-semibold text-white">{testimonial.author}</div>
                       <div className="text-text-secondary">
                         {testimonial.position}, {testimonial.company}
                       </div>
@@ -212,7 +212,7 @@ const SocialProof = () => {
               <Button 
                 variant="outline" 
                 size="icon" 
-                className="rounded-full border-border-dark hover:border-tech-green/50 hover:bg-dark-primary"
+                className="rounded-full border-gray-700 hover:border-emerald-green/50 hover:bg-gray-900"
                 onClick={prevTestimonial}
               >
                 <ArrowLeft size={16} />
@@ -225,8 +225,8 @@ const SocialProof = () => {
                     key={index}
                     className={`w-2 h-2 rounded-full transition-all duration-300 ${
                       index === activeTestimonial 
-                        ? 'bg-tech-green w-6' 
-                        : 'bg-border-dark hover:bg-text-secondary'
+                        ? 'bg-emerald-green w-6' 
+                        : 'bg-gray-700 hover:bg-gray-400'
                     }`}
                     onClick={() => setActiveTestimonial(index)}
                   />
@@ -236,7 +236,7 @@ const SocialProof = () => {
               <Button 
                 variant="outline" 
                 size="icon" 
-                className="rounded-full border-border-dark hover:border-tech-green/50 hover:bg-dark-primary"
+                className="rounded-full border-gray-700 hover:border-emerald-green/50 hover:bg-gray-900"
                 onClick={nextTestimonial}
               >
                 <ArrowRight size={16} />

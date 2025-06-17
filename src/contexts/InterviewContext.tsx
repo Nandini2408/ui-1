@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { AgentAnalysisResult } from '@/integrations/openai/codeQualityAnalysis';
 import { PlagiarismAnalysisResult } from '@/integrations/openai/plagiarismAnalysis';
+import { FeedbackResult } from '@/integrations/openai/feedbackGenerator';
 
 // Define the shape of our context state
 interface InterviewContextState {
@@ -45,6 +46,14 @@ interface InterviewContextState {
   setIsPlagiarismAnalyzing: (isAnalyzing: boolean) => void;
   lastPlagiarismAnalysisTime: Date | null;
   setLastPlagiarismAnalysisTime: (time: Date | null) => void;
+  
+  // Feedback generator state
+  feedbackResults: FeedbackResult | null;
+  setFeedbackResults: (results: FeedbackResult | null) => void;
+  isFeedbackGenerating: boolean;
+  setIsFeedbackGenerating: (isGenerating: boolean) => void;
+  lastFeedbackGenerationTime: Date | null;
+  setLastFeedbackGenerationTime: (time: Date | null) => void;
   
   // Chat state
   messages: Array<{
@@ -116,6 +125,11 @@ function twoSum(nums, target) {
   const [plagiarismResults, setPlagiarismResults] = useState<PlagiarismAnalysisResult | null>(null);
   const [isPlagiarismAnalyzing, setIsPlagiarismAnalyzing] = useState<boolean>(false);
   const [lastPlagiarismAnalysisTime, setLastPlagiarismAnalysisTime] = useState<Date | null>(null);
+  
+  // Feedback generator state
+  const [feedbackResults, setFeedbackResults] = useState<FeedbackResult | null>(null);
+  const [isFeedbackGenerating, setIsFeedbackGenerating] = useState<boolean>(false);
+  const [lastFeedbackGenerationTime, setLastFeedbackGenerationTime] = useState<Date | null>(null);
   
   // Chat state
   const [messages, setMessages] = useState([
@@ -225,6 +239,12 @@ Areas for improvement:
     setIsPlagiarismAnalyzing,
     lastPlagiarismAnalysisTime,
     setLastPlagiarismAnalysisTime,
+    feedbackResults,
+    setFeedbackResults,
+    isFeedbackGenerating,
+    setIsFeedbackGenerating,
+    lastFeedbackGenerationTime,
+    setLastFeedbackGenerationTime,
     messages,
     addMessage,
     notes,

@@ -36,8 +36,8 @@ const NavItem: React.FC<NavItemProps> = ({ icon: Icon, label, isActive, onClick 
       className={cn(
         "flex items-center gap-3 px-3 py-2 rounded-md w-full justify-start relative",
         isActive 
-          ? "bg-tech-green/10 text-tech-green font-medium before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-tech-green before:rounded-r-md after:absolute after:right-0 after:top-0 after:bottom-0 after:w-1 after:bg-tech-green/30 after:rounded-l-md" 
-          : "text-text-secondary hover:text-text-primary hover:bg-dark-primary hover:before:absolute hover:before:left-0 hover:before:top-0 hover:before:bottom-0 hover:before:w-1 hover:before:bg-tech-green/30 hover:before:rounded-r-md"
+          ? "bg-emerald-green/10 text-emerald-green font-medium before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-emerald-green before:rounded-r-md after:absolute after:right-0 after:top-0 after:bottom-0 after:w-1 after:bg-emerald-green/30 after:rounded-l-md" 
+          : "text-gray-300 hover:text-white hover:bg-gray-900 hover:before:absolute hover:before:left-0 hover:before:top-0 hover:before:bottom-0 hover:before:w-1 hover:before:bg-emerald-green/30 hover:before:rounded-r-md"
       )}
       onClick={onClick}
     >
@@ -72,7 +72,6 @@ const DesktopNav: React.FC = () => {
   ];
   
   const isInterviewRoom = location.pathname.includes('interview-room');
-  const activeNavItems = isInterviewRoom ? interviewNavItems : mainNavItems;
   
   // Check if path is active, including partial matches for nested routes
   const isPathActive = (path: string) => {
@@ -90,10 +89,10 @@ const DesktopNav: React.FC = () => {
   };
   
   return (
-    <div className="h-full w-64 bg-dark-secondary border-r border-border-dark flex flex-col">
+    <div className="h-full w-64 bg-gray-800 border-r border-gray-700 flex flex-col">
       {/* Logo and App Name */}
-      <div className="p-4 border-b border-border-dark flex items-center gap-3">
-        <div className="w-8 h-8 rounded-md bg-tech-green flex items-center justify-center text-dark-primary font-bold">
+      <div className="p-4 border-b border-gray-700 flex items-center gap-3">
+        <div className="w-8 h-8 rounded-md bg-emerald-green flex items-center justify-center text-gray-900 font-bold">
           H
         </div>
         <span className="text-white text-lg font-semibold">Hacerank</span>
@@ -102,33 +101,32 @@ const DesktopNav: React.FC = () => {
       {/* Search */}
       <div className="p-4">
         <div className="relative">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-text-secondary" />
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
           <Input 
             placeholder="Search..." 
-            className="pl-8 bg-dark-primary border-border-dark text-text-primary"
+            className="pl-8 bg-gray-900 border-gray-700 text-white"
           />
         </div>
       </div>
       
       {/* Navigation Items */}
       <div className="p-4 flex-1 overflow-auto">
-        <nav className="space-y-1">
-          {activeNavItems.map((item) => (
-            <NavItem
-              key={item.path}
-              icon={item.icon}
-              label={item.label}
-              path={item.path}
-              isActive={isPathActive(item.path)}
-              onClick={() => navigate(item.path)}
-            />
-          ))}
-        </nav>
-        
-        {isInterviewRoom && (
+        {!isInterviewRoom ? (
+          <nav className="space-y-1">
+            {mainNavItems.map((item) => (
+              <NavItem
+                key={item.path}
+                icon={item.icon}
+                label={item.label}
+                path={item.path}
+                isActive={isPathActive(item.path)}
+                onClick={() => navigate(item.path)}
+              />
+            ))}
+          </nav>
+        ) : (
           <>
-            <div className="my-4 border-t border-border-dark"></div>
-            <h4 className="text-text-secondary text-xs uppercase font-medium mb-2 px-2">Interview Tools</h4>
+            <h4 className="text-gray-400 text-xs uppercase font-medium mb-2 px-2">Interview Tools</h4>
             <nav className="space-y-1">
               {interviewNavItems.map((item) => (
                 <NavItem
@@ -146,22 +144,22 @@ const DesktopNav: React.FC = () => {
       </div>
       
       {/* User Profile */}
-      <div className="p-4 border-t border-border-dark">
+      <div className="p-4 border-t border-gray-700">
         {loading ? (
           <div className="flex items-center justify-center">
-            <Loader2 className="h-5 w-5 text-tech-green animate-spin" />
+            <Loader2 className="h-5 w-5 text-emerald-green animate-spin" />
           </div>
         ) : (
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/profile')}>
             <Avatar>
               <AvatarImage src={profile?.avatar_url || undefined} />
-              <AvatarFallback className="bg-tech-green text-dark-primary">{getInitials()}</AvatarFallback>
+              <AvatarFallback className="bg-emerald-green text-gray-900">{getInitials()}</AvatarFallback>
             </Avatar>
             <div>
               <p className="text-white text-sm font-medium">
                 {profile?.first_name} {profile?.last_name}
               </p>
-              <p className="text-text-secondary text-xs">
+              <p className="text-gray-400 text-xs">
                 {profile?.role.charAt(0).toUpperCase() + profile?.role.slice(1)}
               </p>
             </div>
@@ -170,7 +168,7 @@ const DesktopNav: React.FC = () => {
       </div>
       
       {/* Settings */}
-      <div className="p-4 border-t border-border-dark">
+      <div className="p-4 border-t border-gray-700">
         <NavItem
           icon={Settings}
           label="Settings"

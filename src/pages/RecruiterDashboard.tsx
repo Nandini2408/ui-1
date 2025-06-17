@@ -166,8 +166,8 @@ const RecruiterDashboard = () => {
       value: activeInterviews.toString(),
       change: 'Currently active',
       icon: Calendar,
-      color: 'text-tech-green',
-      bgColor: 'bg-tech-green/10',
+      color: 'text-emerald-green',
+      bgColor: 'bg-emerald-green/10',
       progress: interviewProgress
     },
     {
@@ -193,8 +193,8 @@ const RecruiterDashboard = () => {
       value: completedThisMonth.toString(),
       change: `Since ${startOfMonth.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`,
       icon: CheckCircle,
-      color: 'text-tech-green',
-      bgColor: 'bg-tech-green/10'
+      color: 'text-emerald-green',
+      bgColor: 'bg-emerald-green/10'
     }
   ];
 
@@ -228,7 +228,7 @@ const RecruiterDashboard = () => {
     { 
       label: 'Schedule Interview', 
       icon: Calendar, 
-      color: 'bg-tech-green',
+      color: 'bg-emerald-green',
       action: () => navigate('/schedule')
     },
     { 
@@ -248,7 +248,7 @@ const RecruiterDashboard = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'scheduled': return 'bg-blue-400/20 text-blue-400';
-      case 'in-progress': return 'bg-tech-green/20 text-tech-green';
+      case 'in-progress': return 'bg-emerald-green/20 text-emerald-green';
       case 'completed': return 'bg-gray-400/20 text-gray-400';
       default: return 'bg-gray-400/20 text-gray-400';
     }
@@ -266,7 +266,7 @@ const RecruiterDashboard = () => {
 
   const getActivityColor = (type: string) => {
     switch (type) {
-      case 'interview': return 'bg-tech-green/20 text-tech-green';
+      case 'interview': return 'bg-emerald-green/20 text-emerald-green';
       case 'candidate': return 'bg-blue-400/20 text-blue-400';
       case 'review': return 'bg-purple-400/20 text-purple-400';
       case 'hire': return 'bg-yellow-400/20 text-yellow-400';
@@ -282,7 +282,7 @@ const RecruiterDashboard = () => {
           <div className="flex items-center justify-between h-16">
             {/* Logo and Brand */}
             <div className="flex items-center space-x-3">
-              <div className="w-9 h-9 bg-tech-green rounded-lg flex items-center justify-center">
+              <div className="w-9 h-9 bg-emerald-green rounded-lg flex items-center justify-center">
                 <Code className="h-5 w-5 text-dark-primary" />
               </div>
               <span className="text-xl font-bold text-text-primary hidden md:block">CodeInterview</span>
@@ -298,7 +298,7 @@ const RecruiterDashboard = () => {
                     onClick={() => handleNavigation(item.id)}
                     className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-colors duration-200 ${
                       activeNav === item.id
-                        ? 'bg-tech-green/10 text-tech-green'
+                        ? 'bg-emerald-green/10 text-emerald-green'
                         : 'text-text-secondary hover:text-text-primary hover:bg-dark-primary'
                     }`}
                   >
@@ -342,7 +342,7 @@ const RecruiterDashboard = () => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm" className="rounded-full h-9 w-9 p-0">
                     <Avatar className="h-9 w-9">
-                      <AvatarFallback className="bg-tech-green/20 text-tech-green">
+                      <AvatarFallback className="bg-emerald-green/20 text-emerald-green">
                         {profile?.first_name?.[0] || 'U'}
                       </AvatarFallback>
                     </Avatar>
@@ -427,7 +427,7 @@ const RecruiterDashboard = () => {
                     }}
                     className={`w-full flex items-center space-x-3 px-4 py-3 rounded-md transition-colors duration-200 ${
                       activeNav === item.id
-                        ? 'bg-tech-green/10 text-tech-green'
+                        ? 'bg-emerald-green/10 text-emerald-green'
                         : 'text-text-secondary hover:text-text-primary hover:bg-dark-primary'
                     }`}
                   >
@@ -441,7 +441,7 @@ const RecruiterDashboard = () => {
             <div className="border-t border-border-dark mt-6 pt-6">
               <div className="flex items-center space-x-3 mb-6">
                 <Avatar className="h-10 w-10">
-                  <AvatarFallback className="bg-tech-green/20 text-tech-green">
+                  <AvatarFallback className="bg-emerald-green/20 text-emerald-green">
                     {profile?.first_name?.[0] || 'U'}
                   </AvatarFallback>
                 </Avatar>
@@ -488,7 +488,7 @@ const RecruiterDashboard = () => {
             return (
               <Card 
                 key={index} 
-                className="bg-dark-secondary border-border-dark hover:border-tech-green/30 transition-all duration-300 cursor-pointer group overflow-hidden relative"
+                className="bg-dark-secondary border-border-dark hover:border-emerald-green/30 transition-all duration-300 cursor-pointer group overflow-hidden relative"
                 onClick={action.action}
               >
                 <div className={`absolute inset-0 ${action.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}></div>
@@ -499,7 +499,7 @@ const RecruiterDashboard = () => {
                     </div>
                     <span className="font-medium text-text-primary">{action.label}</span>
                   </div>
-                  <ChevronRight size={18} className="text-text-secondary group-hover:text-tech-green group-hover:translate-x-1 transition-all duration-300" />
+                  <ChevronRight size={18} className="text-text-secondary group-hover:text-emerald-green group-hover:translate-x-1 transition-all duration-300" />
                 </CardContent>
               </Card>
             );
@@ -513,7 +513,7 @@ const RecruiterDashboard = () => {
             return (
               <Card 
                 key={index} 
-                className="bg-dark-secondary border-border-dark hover:border-tech-green/30 transition-all duration-300 overflow-hidden"
+                className="bg-dark-secondary border-border-dark hover:border-emerald-green/30 transition-all duration-300 overflow-hidden"
               >
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between mb-4">
@@ -556,7 +556,7 @@ const RecruiterDashboard = () => {
             <CardContent className="px-6 pb-6">
               {loading ? (
                 <div className="flex items-center justify-center py-12">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-tech-green"></div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-green"></div>
                 </div>
               ) : upcomingInterviews.length === 0 ? (
                 <div className="text-center py-12 bg-dark-primary/30 rounded-lg border border-border-dark">
@@ -565,7 +565,7 @@ const RecruiterDashboard = () => {
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className="border-tech-green text-tech-green hover:bg-tech-green hover:text-dark-primary"
+                    className="border-emerald-green text-emerald-green hover:bg-emerald-green hover:text-dark-primary"
                     onClick={() => navigate('/schedule')}
                   >
                     <Plus size={16} className="mr-1" />
@@ -577,7 +577,7 @@ const RecruiterDashboard = () => {
                   {upcomingInterviews.map((interview) => (
                     <div 
                       key={interview.id} 
-                      className="flex items-center p-4 bg-dark-primary/50 rounded-lg border border-border-dark hover:border-tech-green/30 transition-all duration-300 cursor-pointer"
+                      className="flex items-center p-4 bg-dark-primary/50 rounded-lg border border-border-dark hover:border-emerald-green/30 transition-all duration-300 cursor-pointer"
                       onClick={() => navigate(`/interview-room?id=${interview.id}`)}
                     >
                       <Avatar className="h-10 w-10 mr-4">
@@ -640,7 +640,7 @@ const RecruiterDashboard = () => {
             <CardContent className="px-6 pb-6">
               {activitiesLoading ? (
                 <div className="flex items-center justify-center py-12">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-tech-green"></div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-green"></div>
                 </div>
               ) : recentActivities.length === 0 ? (
                 <div className="text-center py-12 bg-dark-primary/30 rounded-lg border border-border-dark">

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -150,8 +149,8 @@ const Register = () => {
             <div 
               className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
                 step <= currentStep 
-                  ? 'bg-tech-green text-dark-primary' 
-                  : 'bg-dark-primary border border-border-dark text-text-secondary'
+                  ? 'bg-emerald-green text-gray-900' 
+                  : 'bg-gray-900 border border-gray-700 text-gray-400'
               }`}
             >
               {step < currentStep ? <Check size={16} /> : step}
@@ -159,7 +158,7 @@ const Register = () => {
             {step < 3 && (
               <div 
                 className={`w-12 h-0.5 mx-2 ${
-                  step < currentStep ? 'bg-tech-green' : 'bg-border-dark'
+                  step < currentStep ? 'bg-emerald-green' : 'bg-gray-700'
                 }`} 
               />
             )}
@@ -167,7 +166,7 @@ const Register = () => {
         ))}
       </div>
       <div className="text-center">
-        <span className="text-text-secondary text-sm">
+        <span className="text-gray-400 text-sm">
           Step {currentStep} of {totalSteps}
         </span>
       </div>
@@ -180,8 +179,8 @@ const Register = () => {
         return (
           <div className="space-y-4">
             <div className="text-center mb-6">
-              <h2 className="text-xl font-semibold text-text-primary mb-2">Choose Your Role</h2>
-              <p className="text-text-secondary">Select the role that best describes you</p>
+              <h2 className="text-xl font-semibold text-white mb-2">Choose Your Role</h2>
+              <p className="text-gray-300">Select the role that best describes you</p>
             </div>
             
             <div className="space-y-3">
@@ -192,15 +191,15 @@ const Register = () => {
                   onClick={() => setFormData({ ...formData, role: role.id })}
                   className={`w-full p-4 rounded-lg border text-left transition-all ${
                     formData.role === role.id
-                      ? 'border-tech-green bg-tech-green/10'
-                      : 'border-border-dark bg-dark-primary hover:border-tech-green/50'
+                      ? 'border-emerald-green bg-emerald-green/10'
+                      : 'border-gray-700 bg-gray-900 hover:border-emerald-green/50'
                   }`}
                 >
                   <div className="flex items-center space-x-3">
                     <span className="text-2xl">{role.icon}</span>
                     <div>
-                      <h3 className="font-medium text-text-primary">{role.title}</h3>
-                      <p className="text-sm text-text-secondary">{role.description}</p>
+                      <h3 className="font-medium text-white">{role.title}</h3>
+                      <p className="text-sm text-gray-300">{role.description}</p>
                     </div>
                   </div>
                 </button>
@@ -214,60 +213,60 @@ const Register = () => {
         return (
           <div className="space-y-4">
             <div className="text-center mb-6">
-              <h2 className="text-xl font-semibold text-text-primary mb-2">Basic Information</h2>
-              <p className="text-text-secondary">Tell us about yourself</p>
+              <h2 className="text-xl font-semibold text-white mb-2">Basic Information</h2>
+              <p className="text-gray-300">Tell us about yourself</p>
             </div>
             
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="firstName" className="text-text-primary">First Name</Label>
+                <Label htmlFor="firstName" className="text-white">First Name</Label>
                 <Input
                   id="firstName"
                   value={formData.firstName}
                   onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                  className="bg-dark-primary border-border-dark text-text-primary focus:border-tech-green"
+                  className="bg-gray-900 border-gray-700 text-white focus:border-emerald-green"
                 />
                 {errors.firstName && <p className="text-red-500 text-sm">{errors.firstName}</p>}
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="lastName" className="text-text-primary">Last Name</Label>
+                <Label htmlFor="lastName" className="text-white">Last Name</Label>
                 <Input
                   id="lastName"
                   value={formData.lastName}
                   onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                  className="bg-dark-primary border-border-dark text-text-primary focus:border-tech-green"
+                  className="bg-gray-900 border-gray-700 text-white focus:border-emerald-green"
                 />
                 {errors.lastName && <p className="text-red-500 text-sm">{errors.lastName}</p>}
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-text-primary">Email</Label>
+              <Label htmlFor="email" className="text-white">Email</Label>
               <Input
                 id="email"
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="bg-dark-primary border-border-dark text-text-primary focus:border-tech-green"
+                className="bg-gray-900 border-gray-700 text-white focus:border-emerald-green"
               />
               {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-text-primary">Password</Label>
+              <Label htmlFor="password" className="text-white">Password</Label>
               <div className="relative">
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="bg-dark-primary border-border-dark text-text-primary focus:border-tech-green pr-10"
+                  className="bg-gray-900 border-gray-700 text-white focus:border-emerald-green pr-10"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-text-secondary"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
@@ -276,19 +275,19 @@ const Register = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="text-text-primary">Confirm Password</Label>
+              <Label htmlFor="confirmPassword" className="text-white">Confirm Password</Label>
               <div className="relative">
                 <Input
                   id="confirmPassword"
                   type={showConfirmPassword ? 'text' : 'password'}
                   value={formData.confirmPassword}
                   onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                  className="bg-dark-primary border-border-dark text-text-primary focus:border-tech-green pr-10"
+                  className="bg-gray-900 border-gray-700 text-white focus:border-emerald-green pr-10"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-text-secondary"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
                 >
                   {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
@@ -302,11 +301,11 @@ const Register = () => {
         return (
           <div className="space-y-4">
             <div className="text-center mb-6">
-              <h2 className="text-xl font-semibold text-text-primary mb-2">
+              <h2 className="text-xl font-semibold text-white mb-2">
                 {formData.role === 'recruiter' ? 'Company Details' : 
                  formData.role === 'candidate' ? 'Your Skills' : 'Admin Details'}
               </h2>
-              <p className="text-text-secondary">
+              <p className="text-gray-300">
                 {formData.role === 'recruiter' ? 'Tell us about your company' :
                  formData.role === 'candidate' ? 'What technologies do you work with?' :
                  'Additional information'}
@@ -315,12 +314,12 @@ const Register = () => {
             
             {formData.role === 'recruiter' && (
               <div className="space-y-2">
-                <Label htmlFor="company" className="text-text-primary">Company Name</Label>
+                <Label htmlFor="company" className="text-white">Company Name</Label>
                 <Input
                   id="company"
                   value={formData.company}
                   onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                  className="bg-dark-primary border-border-dark text-text-primary focus:border-tech-green"
+                  className="bg-gray-900 border-gray-700 text-white focus:border-emerald-green"
                 />
                 {errors.company && <p className="text-red-500 text-sm">{errors.company}</p>}
               </div>
@@ -329,25 +328,25 @@ const Register = () => {
             {formData.role === 'candidate' && (
               <>
                 <div className="space-y-2">
-                  <Label htmlFor="skills" className="text-text-primary">Skills</Label>
+                  <Label htmlFor="skills" className="text-white">Skills</Label>
                   <Textarea
                     id="skills"
                     value={formData.skills}
                     onChange={(e) => setFormData({ ...formData, skills: e.target.value })}
                     placeholder="e.g. JavaScript, React, Node.js, Python..."
-                    className="bg-dark-primary border-border-dark text-text-primary focus:border-tech-green"
+                    className="bg-gray-900 border-gray-700 text-white focus:border-emerald-green"
                   />
                   {errors.skills && <p className="text-red-500 text-sm">{errors.skills}</p>}
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="experience" className="text-text-primary">Experience (Optional)</Label>
+                  <Label htmlFor="experience" className="text-white">Experience (Optional)</Label>
                   <Textarea
                     id="experience"
                     value={formData.experience}
                     onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
                     placeholder="Tell us about your experience..."
-                    className="bg-dark-primary border-border-dark text-text-primary focus:border-tech-green"
+                    className="bg-gray-900 border-gray-700 text-white focus:border-emerald-green"
                   />
                 </div>
               </>
@@ -361,16 +360,16 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-dark-primary flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-text-primary mb-2">Create Account</h1>
-          <p className="text-text-secondary">Join CodeInterview Pro today</p>
+          <h1 className="text-3xl font-bold text-white mb-2">Create Account</h1>
+          <p className="text-gray-300">Join CodeInterview Pro today</p>
         </div>
 
-        <Card className="bg-dark-secondary border-border-dark">
+        <Card className="bg-gray-800 border-gray-700">
           <CardHeader>
-            <CardTitle className="text-2xl text-center text-text-primary">Sign Up</CardTitle>
+            <CardTitle className="text-2xl text-center text-white">Sign Up</CardTitle>
           </CardHeader>
           <CardContent>
             {renderProgressBar()}
@@ -383,7 +382,7 @@ const Register = () => {
                   type="button"
                   variant="outline"
                   onClick={handlePrevious}
-                  className="border-border-dark text-text-primary hover:bg-dark-primary"
+                  className="border-gray-700 text-white hover:bg-gray-900"
                 >
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Previous
@@ -396,7 +395,7 @@ const Register = () => {
                 <Button
                   type="button"
                   onClick={handleNext}
-                  className="bg-tech-green hover:bg-tech-green/90 text-dark-primary font-semibold"
+                  className="bg-emerald-green hover:bg-emerald-green/90 text-gray-900 font-semibold"
                 >
                   Next
                   <ArrowRight className="w-4 h-4 ml-2" />
@@ -406,7 +405,7 @@ const Register = () => {
                   type="button"
                   onClick={handleSubmit}
                   disabled={isLoading}
-                  className="bg-tech-green hover:bg-tech-green/90 text-dark-primary font-semibold"
+                  className="bg-emerald-green hover:bg-emerald-green/90 text-gray-900 font-semibold"
                 >
                   {isLoading ? 'Creating Account...' : 'Create Account'}
                 </Button>
@@ -414,9 +413,9 @@ const Register = () => {
             </div>
             
             <div className="text-center mt-6">
-              <p className="text-text-secondary text-sm">
+              <p className="text-gray-300 text-sm">
                 Already have an account?{' '}
-                <Link to="/login" className="text-tech-green hover:text-tech-green/80">
+                <Link to="/login" className="text-emerald-green hover:text-emerald-green/80">
                   Sign in
                 </Link>
               </p>

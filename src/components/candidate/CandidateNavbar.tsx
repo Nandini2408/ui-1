@@ -40,25 +40,26 @@ const CandidateNavbar = () => {
   ];
 
   return (
-    <header className="bg-dark-primary border-b border-border-dark sticky top-0 z-50">
+    <header className="bg-gradient-to-r from-emerald-green/95 to-emerald-green/80 shadow-md sticky top-0 z-50">
       <div className="container mx-auto flex items-center justify-between h-16">
         {/* Logo */}
         <div className="flex items-center">
-          <div className="w-10 h-10 bg-tech-green rounded-md flex items-center justify-center mr-2">
-            <Code className="h-5 w-5 text-dark-primary" />
+          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center mr-2 shadow-lg">
+            <Code className="h-5 w-5 text-emerald-green" />
           </div>
-          <span className="text-text-primary font-bold text-lg">CodeInterview Pro</span>
+          <span className="text-white font-bold text-lg">CodeInterview Pro</span>
         </div>
 
         {/* Navigation */}
-        <nav className="flex items-center space-x-1">
+        <nav className="hidden md:flex items-center space-x-1">
           {navigationItems.map((item) => (
             <Button
               key={item.id}
               variant="ghost"
-              className="text-text-secondary hover:text-tech-green"
+              className="text-white hover:bg-white/20 hover:text-white flex items-center gap-2"
               onClick={() => navigate(item.path)}
             >
+              <item.icon size={16} />
               {item.label}
             </Button>
           ))}
@@ -66,36 +67,38 @@ const CandidateNavbar = () => {
 
         {/* Right Side Actions */}
         <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="icon" className="text-text-secondary hover:text-text-primary">
+          <Button variant="ghost" size="icon" className="text-white hover:bg-white/20 relative">
             <Bell size={20} />
+            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
           </Button>
 
           {/* User Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback className="bg-tech-green text-dark-primary text-sm font-bold">
+              <Button variant="ghost" className="relative h-8 w-8 rounded-full hover:bg-white/20">
+                <Avatar className="h-8 w-8 ring-2 ring-white">
+                  <AvatarImage src={profile?.avatar_url || ''} />
+                  <AvatarFallback className="bg-white text-emerald-green text-sm font-bold">
                     {profile?.first_name?.[0] || 'n'}
                   </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56 bg-dark-secondary border-border-dark" align="end">
-              <DropdownMenuLabel className="text-text-primary">
+            <DropdownMenuContent className="w-56 bg-white border-none shadow-lg rounded-xl mt-2" align="end">
+              <DropdownMenuLabel className="text-gray-800 font-medium">
                 {profile?.first_name} {profile?.last_name}
               </DropdownMenuLabel>
-              <DropdownMenuSeparator className="bg-border-dark" />
+              <DropdownMenuSeparator className="bg-gray-200" />
               <DropdownMenuItem 
-                className="text-text-secondary cursor-pointer hover:text-text-primary hover:bg-dark-primary"
+                className="text-gray-700 cursor-pointer hover:text-emerald-green hover:bg-gray-100 rounded-md my-1"
                 onClick={() => navigate('/profile')}
               >
                 <User className="mr-2 h-4 w-4" />
                 <span>My Profile</span>
               </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-border-dark" />
+              <DropdownMenuSeparator className="bg-gray-200" />
               <DropdownMenuItem 
-                className="text-text-secondary cursor-pointer hover:text-red-500 hover:bg-dark-primary"
+                className="text-gray-700 cursor-pointer hover:text-red-500 hover:bg-gray-100 rounded-md my-1"
                 onClick={handleSignOut}
               >
                 <LogOut className="mr-2 h-4 w-4" />

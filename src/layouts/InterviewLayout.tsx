@@ -17,10 +17,10 @@ const InterviewLayout: React.FC = () => {
     <NavLayout>
       <div className="flex flex-col h-full">
         {/* Interview Header */}
-        <header className="bg-dark-secondary border-b border-border-dark px-6 py-3 flex items-center justify-between">
+        <header className="bg-gray-800 border-b border-gray-700 px-6 py-3 flex items-center justify-between">
           <div>
             <h1 className="text-white font-semibold text-lg">Senior Frontend Developer Interview</h1>
-            <p className="text-text-secondary text-sm">Sarah Chen</p>
+            <p className="text-gray-300 text-sm">Sarah Chen</p>
           </div>
           
           <Button 

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -67,36 +66,36 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-dark-primary flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-text-primary mb-2">Welcome Back</h1>
-          <p className="text-text-secondary">Sign in to your Code Interview account</p>
+          <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
+          <p className="text-gray-300">Sign in to your Code Interview account</p>
         </div>
 
-        <Card className="bg-dark-secondary border-border-dark">
+        <Card className="bg-gray-800 border-gray-700">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center text-text-primary">Sign In</CardTitle>
+            <CardTitle className="text-2xl text-center text-white">Sign In</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Role Selector */}
             <Tabs value={activeRole} onValueChange={setActiveRole} className="w-full">
-              <TabsList className="grid w-full grid-cols-3 bg-dark-primary">
+              <TabsList className="grid w-full grid-cols-3 bg-gray-900">
                 <TabsTrigger 
                   value="recruiter" 
-                  className="data-[state=active]:bg-tech-green data-[state=active]:text-dark-primary"
+                  className="data-[state=active]:bg-emerald-green data-[state=active]:text-gray-900"
                 >
                   Recruiter
                 </TabsTrigger>
                 <TabsTrigger 
                   value="candidate" 
-                  className="data-[state=active]:bg-tech-green data-[state=active]:text-dark-primary"
+                  className="data-[state=active]:bg-emerald-green data-[state=active]:text-gray-900"
                 >
                   Candidate
                 </TabsTrigger>
                 <TabsTrigger 
                   value="admin" 
-                  className="data-[state=active]:bg-tech-green data-[state=active]:text-dark-primary"
+                  className="data-[state=active]:bg-emerald-green data-[state=active]:text-gray-900"
                 >
                   Admin
                 </TabsTrigger>
@@ -106,20 +105,20 @@ const Login = () => {
             {/* Login Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-text-primary">Email</Label>
+                <Label htmlFor="email" className="text-white">Email</Label>
                 <Input
                   id="email"
                   type="email"
                   placeholder="Enter your email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="bg-dark-primary border-border-dark text-text-primary focus:border-tech-green"
+                  className="bg-gray-900 border-gray-700 text-white focus:border-emerald-green"
                 />
                 {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-text-primary">Password</Label>
+                <Label htmlFor="password" className="text-white">Password</Label>
                 <div className="relative">
                   <Input
                     id="password"
@@ -127,12 +126,12 @@ const Login = () => {
                     placeholder="Enter your password"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    className="bg-dark-primary border-border-dark text-text-primary focus:border-tech-green pr-10"
+                    className="bg-gray-900 border-gray-700 text-white focus:border-emerald-green pr-10"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-text-secondary hover:text-text-primary"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
                   >
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
@@ -147,16 +146,16 @@ const Login = () => {
                   onCheckedChange={(checked) => 
                     setFormData({ ...formData, rememberMe: checked === true })
                   }
-                  className="border-border-dark data-[state=checked]:bg-tech-green"
+                  className="border-gray-700 data-[state=checked]:bg-emerald-green"
                 />
-                <Label htmlFor="remember" className="text-text-secondary text-sm">
+                <Label htmlFor="remember" className="text-gray-300 text-sm">
                   Remember me
                 </Label>
               </div>
 
               <Button
                 type="submit"
-                className="w-full bg-tech-green hover:bg-tech-green/90 text-dark-primary font-semibold"
+                className="w-full bg-emerald-green hover:bg-emerald-green/90 text-gray-900 font-semibold"
                 disabled={isLoading}
               >
                 {isLoading ? 'Signing in...' : 'Sign In'}
@@ -165,9 +164,9 @@ const Login = () => {
 
             {/* Footer Links */}
             <div className="text-center space-y-2">
-              <p className="text-text-secondary text-sm">
+              <p className="text-gray-300 text-sm">
                 Don't have an account?{' '}
-                <Link to="/auth" className="text-tech-green hover:text-tech-green/80">
+                <Link to="/auth" className="text-emerald-green hover:text-emerald-green/80">
                   Sign up
                 </Link>
               </p>

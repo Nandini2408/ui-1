@@ -1,6 +1,4 @@
-
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Clock, TrendingUp, Award } from 'lucide-react';
@@ -28,98 +26,121 @@ const InterviewHistory = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'passed': return 'bg-tech-green text-dark-primary';
-      case 'pending': return 'bg-yellow-500 text-dark-primary';
+      case 'passed': return 'bg-emerald-green text-white';
+      case 'pending': return 'bg-yellow-500 text-white';
       case 'rejected': return 'bg-red-500 text-white';
       default: return 'bg-gray-500 text-white';
     }
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-tech-green';
+    if (score >= 80) return 'text-emerald-green';
     if (score >= 60) return 'text-yellow-500';
     return 'text-red-500';
   };
 
   return (
-    <Card className="bg-dark-secondary border-border-dark">
-      <CardHeader>
-        <CardTitle className="text-lg text-text-primary flex items-center gap-2">
-          <Clock className="h-5 w-5 text-tech-green" />
-          Interview History
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        {loading ? (
-          <div className="text-center text-text-secondary py-8">
-            Loading interview history...
+    <div className="p-6">
+      {loading ? (
+        <div className="text-center py-8 text-gray-400">
+          <div className="animate-spin w-8 h-8 border-4 border-emerald-green/20 border-t-emerald-green rounded-full mx-auto mb-4"></div>
+          Loading interview history...
+        </div>
+      ) : interviewHistory.length === 0 ? (
+        <div className="text-center py-12">
+          <div className="mx-auto w-20 h-20 bg-gray-700 rounded-full flex items-center justify-center mb-4">
+            <Clock className="h-10 w-10 text-gray-400" />
           </div>
-        ) : interviewHistory.length === 0 ? (
-          <div className="text-center text-text-secondary py-8">
-            No interview history available
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {interviewHistory.map((interview, index) => (
-              <div key={interview.id} className="relative">
-                {/* Timeline Line */}
-                {index !== interviewHistory.length - 1 && (
-                  <div className="absolute left-6 top-12 w-0.5 h-16 bg-border-dark"></div>
-                )}
-                
-                <div className="flex gap-4">
-                  <div className="flex-shrink-0">
-                    <div className="w-12 h-12 rounded-full bg-dark-primary border-2 border-tech-green flex items-center justify-center">
-                      <Award className="h-6 w-6 text-tech-green" />
-                    </div>
+          <h3 className="text-white font-medium text-xl mb-2">No Interview History</h3>
+          <p className="text-gray-400 text-base">Your past interviews will appear here</p>
+        </div>
+      ) : (
+        <div className="space-y-8">
+          {interviewHistory.map((interview, index) => (
+            <div key={interview.id} className="relative">
+              {/* Timeline Line */}
+              {index !== interviewHistory.length - 1 && (
+                <div className="absolute left-6 top-12 w-0.5 h-24 bg-gray-700"></div>
+              )}
+              
+              <div className="flex gap-4">
+                <div className="flex-shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-emerald-green/20 border-2 border-emerald-green flex items-center justify-center">
+                    <Award className="h-6 w-6 text-emerald-green" />
                   </div>
-                  
-                  <div className="flex-1 bg-dark-primary rounded-lg p-4 border border-border-dark">
-                    <div className="flex items-start justify-between mb-3">
-                      <div>
-                        <h3 className="font-semibold text-text-primary">
-                          {interview.job_position?.title || 'Interview'}
-                        </h3>
-                        <p className="text-sm text-text-secondary">
-                          {interview.recruiter ? 
-                            `${interview.recruiter.first_name} ${interview.recruiter.last_name}` : 
-                            'Unknown Recruiter'
-                          } • {interview.scheduled_at ? format(new Date(interview.scheduled_at), 'MMM dd, yyyy') : 'No date'}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {interview.overall_score && (
+                </div>
+                
+                <div className="flex-1 bg-gray-800 rounded-xl p-5 border border-gray-700 shadow-md">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <h3 className="font-medium text-white text-lg">
+                        {interview.job_position?.title || 'Interview'}
+                      </h3>
+                      <p className="text-sm text-gray-300 mt-1">
+                        {interview.recruiter ? 
+                          `${interview.recruiter.first_name} ${interview.recruiter.last_name}` : 
+                          'Unknown Recruiter'
+                        } • {interview.scheduled_at ? format(new Date(interview.scheduled_at), 'MMM dd, yyyy') : 'No date'}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      {interview.overall_score && (
+                        <div className="flex flex-col items-center">
+                          <span className="text-sm text-gray-400">Score</span>
                           <span className={`text-2xl font-bold ${getScoreColor(interview.overall_score)}`}>
                             {interview.overall_score}
                           </span>
-                        )}
-                        <Badge className={getStatusColor(interview.status || 'completed')}>
-                          {interview.status || 'completed'}
-                        </Badge>
-                      </div>
+                        </div>
+                      )}
+                      <Badge className={getStatusColor(interview.status || 'completed') + " text-sm py-1 px-3"}>
+                        {interview.status || 'completed'}
+                      </Badge>
                     </div>
-                    
-                    {interview.duration_minutes && (
-                      <div className="mb-3">
-                        <span className="text-sm text-text-secondary">
-                          Duration: {interview.duration_minutes} minutes
-                        </span>
-                      </div>
-                    )}
-                    
-                    {interview.feedback && (
-                      <p className="text-sm text-text-secondary bg-dark-secondary p-3 rounded border border-border-dark">
+                  </div>
+                  
+                  {interview.duration_minutes && (
+                    <div className="mb-3 flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-gray-400" />
+                      <span className="text-sm text-gray-300">
+                        Duration: {interview.duration_minutes} minutes
+                      </span>
+                    </div>
+                  )}
+                  
+                  {interview.feedback && (
+                    <div className="mt-4">
+                      <div className="text-sm text-gray-400 mb-2">Feedback:</div>
+                      <p className="text-sm text-gray-300 bg-gray-700 p-4 rounded-lg border border-gray-600">
                         {interview.feedback}
                       </p>
-                    )}
-                  </div>
+                    </div>
+                  )}
+                  
+                  {interview.overall_score && (
+                    <div className="mt-4">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-sm text-gray-400">Overall Performance</span>
+                        <span className={`text-sm ${getScoreColor(interview.overall_score)}`}>{interview.overall_score}%</span>
+                      </div>
+                      <Progress 
+                        value={interview.overall_score} 
+                        className={`h-2 bg-gray-700 ${
+                          interview.overall_score >= 80 
+                            ? "[&>div]:bg-emerald-green" 
+                            : interview.overall_score >= 60 
+                              ? "[&>div]:bg-yellow-500" 
+                              : "[&>div]:bg-red-500"
+                        }`}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 };
 

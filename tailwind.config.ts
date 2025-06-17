@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -64,12 +63,25 @@ export default {
           ring: "hsl(var(--sidebar-ring))",
         },
         // Custom platform colors
-        "dark-primary": "#0d1421",
-        "dark-secondary": "#1e2432",
-        "tech-green": "#39d353",
+        "dark-primary": "#0a1f1c",
+        "dark-secondary": "#132c28",
+        "tech-green": "#00A651",
+        "emerald-green": "#00A651",
+        "green-light": "#4cd964",
+        "green-dark": "#007e3e",
+        "green-subtle": "#e6f7ef",
         "text-primary": "#ffffff",
-        "text-secondary": "#8b949e",
-        "border-dark": "#30363d",
+        "text-secondary": "#a3b8b4",
+        "border-dark": "#1d3b36",
+        "success": "#00c853",
+        "warning": "#ffc107",
+        "error": "#ff3b30",
+        "info": "#0084ff",
+      },
+      backgroundImage: {
+        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
+        "gradient-conic": "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
+        "green-gradient": "linear-gradient(to right, #00A651, #4cd964)",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -94,12 +106,17 @@ export default {
             opacity: "1",
             transform: "translateY(0)"
           }
+        },
+        "pulse-green": {
+          "0%, 100%": { opacity: "0.5" },
+          "50%": { opacity: "0.8" }
         }
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.5s ease-out forwards",
+        "pulse-green": "pulse-green 3s ease-in-out infinite",
       },
     },
   },

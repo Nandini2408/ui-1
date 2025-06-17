@@ -15,13 +15,9 @@ export const REMOTE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https:/
 export const REMOTE_WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL || 
   (REMOTE_API_BASE_URL.replace('http://', 'ws://').replace('https://', 'wss://'));
 
-// For notes server (deployed on Render)
+// For notes server (deployed on Render) - HARDCODED to prevent any overrides
 export const NOTES_API_BASE_URL = 'https://shared-notes-server.onrender.com';
-export const NOTES_WS_BASE_URL = NOTES_API_BASE_URL.replace('https://', 'wss://');
-
-// For local development (comment out when using the deployed server)
-// export const NOTES_API_BASE_URL = 'http://localhost:5000';
-// export const NOTES_WS_BASE_URL = 'ws://localhost:5000';
+export const NOTES_WS_BASE_URL = 'wss://shared-notes-server.onrender.com';
 
 // API endpoints
 export const API_ENDPOINTS = {
@@ -38,9 +34,9 @@ export const API_ENDPOINTS = {
   TRANSCRIPTS: (roomId: string) => `${REMOTE_API_BASE_URL}/api/transcripts/${roomId}`,
   TRANSCRIPT_WS: (roomId: string) => `${REMOTE_WS_BASE_URL}/transcripts?room=${roomId}`,
   
-  // Notes endpoints (use deployed notes server)
-  NOTES: (roomId: string) => `${NOTES_API_BASE_URL}/api/notes/${roomId}`,
-  NOTES_WS: (roomId: string) => `${NOTES_WS_BASE_URL}/notes?room=${roomId}`,
+  // Notes endpoints (use deployed notes server) - HARDCODED to prevent any overrides
+  NOTES: (roomId: string) => `https://shared-notes-server.onrender.com/api/notes/${roomId}`,
+  NOTES_WS: (roomId: string) => `wss://shared-notes-server.onrender.com/notes?room=${roomId}`,
   
   // AssemblyAI endpoints (use remote server)
   ASSEMBLY_TOKEN: `${REMOTE_API_BASE_URL}/api/assembly/token`,
